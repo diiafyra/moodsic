@@ -1,3 +1,4 @@
+
 ### 3. `domain/` – Business logic (Use Cases & Entities)
 - **Mục đích**: Tách biệt hoàn toàn “việc app phải làm” (use case) khỏi các chi tiết fetch data.
 - **Ví dụ sản phẩm**:

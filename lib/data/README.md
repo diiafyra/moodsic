@@ -1,3 +1,4 @@
+
 ### 2. `data/` – Model + Repository
 - **Mục đích**: Định nghĩa cấu trúc data (model) và cách lấy/lưu (repository).
 - **Ví dụ sản phẩm**:
