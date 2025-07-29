@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-//import '../../home/pages/home_page.dart';
+import '../../home/pages/home_page.dart';
 //?
 
 class MainNavigationPage extends StatefulWidget {
@@ -14,7 +14,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = const [
-    Placeholder(), // Thay bằng HomePage()
+    HomePage(), // Thay bằng HomePage()
     Placeholder(),
     Placeholder(),
     Placeholder(),
