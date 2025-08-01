@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomPasswordField extends StatefulWidget {
-  const CustomPasswordField({super.key});
+  final TextEditingController controller;
 
+  const CustomPasswordField({super.key, required this.controller});
   @override
   State<CustomPasswordField> createState() => _CustomPasswordFieldState();
 }
@@ -16,6 +17,7 @@ class _CustomPasswordFieldState extends State<CustomPasswordField> {
     return SizedBox(
       width: 339,
       child: TextFormField(
+        controller: widget.controller,
         obscureText: _obscureText,
         decoration: InputDecoration(
           hintText: "Password",
@@ -32,7 +34,9 @@ class _CustomPasswordFieldState extends State<CustomPasswordField> {
           suffixIcon: IconButton(
             icon: Transform(
               alignment: Alignment.center,
-              transform: Matrix4.rotationX(_obscureText ? 0 : 3.1416),// lật dọc nếu hiện mật khẩu
+              transform: Matrix4.rotationX(
+                _obscureText ? 0 : 3.1416,
+              ), // lật dọc nếu hiện mật khẩu
               child: SvgPicture.asset(
                 'assets/icons/Vector.svg',
                 width: 12,

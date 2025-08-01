@@ -1,0 +1,90 @@
+import 'package:moodsic/shared/widgets/playlist_dto.dart';
+import 'package:moodsic/shared/widgets/track_dto.dart';
+
+final List<PlaylistDto> samplePlaylists = [
+  PlaylistDto(
+    id: '1',
+    imageUrl: 'https://i.imgur.com/ZWLFD3m.jpeg',
+    description: 'Playlist chính với các bài hát yêu thích.',
+    name: 'Playlist Yêu Thích',
+    artists: ['Artist 1', 'Artist 2', 'Artist 3'],
+    isPlaying: false,
+    isLiked: true,
+    createdDate: DateTime(2025, 7, 29),
+    tracks: [
+      TrackDto(
+        id: 't1',
+        title: 'Bài 1',
+        url: 'https://via.placeholder.com/50',
+        artists: ['Artist 1'],
+      ),
+      TrackDto(
+        id: 't2',
+        title: 'Bài 2',
+        url: 'https://via.placeholder.com/50',
+        artists: ['Artist 2'],
+      ),
+      TrackDto(
+        id: 't3',
+        title: 'Bài 3',
+        url: 'https://via.placeholder.com/50',
+        artists: ['Artist 3'],
+      ),
+      TrackDto(
+        id: 't4',
+        title: 'Bài 2',
+        url: 'https://via.placeholder.com/50',
+        artists: ['Artist 2'],
+      ),
+      TrackDto(
+        id: 't5',
+        title: 'Bài 2',
+        url: 'https://via.placeholder.com/50',
+        artists: ['Artist 2'],
+      ),
+      TrackDto(
+        id: 't6',
+        title: 'Bài 2',
+        url: 'https://via.placeholder.com/50',
+        artists: ['Artist 2'],
+      ),
+      TrackDto(
+        id: 't7',
+        title: 'Bài 2',
+        url: 'https://via.placeholder.com/50',
+        artists: ['Artist 2'],
+      ),
+      TrackDto(
+        id: 't8',
+        title: 'Bài 2',
+        url: 'https://via.placeholder.com/50',
+        artists: ['Artist 2'],
+      ),
+    ],
+    isMain: true,
+  ),
+  PlaylistDto(
+    id: '2',
+    imageUrl: 'https://via.placeholder.com/200',
+    description: 'Playlist thư giãn cuối tuần.',
+    name: 'Thư Giãn',
+    artists: ['Artist A', 'Artist B'],
+    isPlaying: false,
+    isLiked: false,
+    createdDate: DateTime(2025, 7, 29),
+    tracks: null,
+    isMain: false,
+  ),
+  PlaylistDto(
+    id: '3',
+    imageUrl: 'https://via.placeholder.com/200',
+    description: 'Playlist tập thể dục.',
+    name: 'Tập Luyện',
+    artists: ['Artist X', 'Artist Y', 'Artist Z'],
+    isPlaying: false,
+    isLiked: true,
+    createdDate: DateTime(2025, 7, 29),
+    tracks: null,
+    isMain: false,
+  ),
+];

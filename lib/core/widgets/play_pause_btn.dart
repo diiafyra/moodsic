@@ -1,28 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-class PlayPauseButton extends StatelessWidget {
+class PlayPauseButton extends StatefulWidget {
   final bool isPlaying;
-  final void Function(String id) onTap;
+  final int size;
   final String id;
-  final double size;
 
   const PlayPauseButton({
     super.key,
-    required this.isPlaying,
-    required this.onTap,
     required this.id,
-    this.size = 28.0,
+    required this.size,
+    required this.isPlaying,
   });
+
+  @override
+  State<PlayPauseButton> createState() => _PlayPauseButtonState();
+}
+
+class _PlayPauseButtonState extends State<PlayPauseButton> {
+  bool isPlaying = false;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => onTap(id),
-      child: SvgPicture.asset(
-        isPlaying ? 'assets/icons/pause.svg' : 'assets/icons/play.svg',
-        width: size,
-        height: size,
+      onTap: () {
+        setState(() {
+          isPlaying = !isPlaying;
+        });
+      },
+      child: Container(
+        width: widget.size.toDouble() + 4,
+        height: widget.size.toDouble() + 4,
+        child: Center(
+          child: SvgPicture.asset(
+            isPlaying ? 'assets/icons/pause.svg' : 'assets/icons/play.svg',
+            width: widget.size.toDouble(),
+            height: widget.size.toDouble(),
+          ),
+        ),
       ),
     );
   }

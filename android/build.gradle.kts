@@ -1,3 +1,13 @@
+buildscript {
+    dependencies {
+        classpath("com.google.gms:google-services:4.4.0") // ✅ Thêm dòng này
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
 allprojects {
     repositories {
         google()

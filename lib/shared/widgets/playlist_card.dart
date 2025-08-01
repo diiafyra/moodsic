@@ -1,12 +1,12 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:untitled/core/config/theme/app_colors.dart';
-import 'package:untitled/core/widgets/custom_network_image.dart';
-import 'package:untitled/core/widgets/like_btn.dart';
-import 'package:untitled/core/widgets/play_pause_btn.dart';
-import 'package:untitled/domains/usecases/playlist/handle_like_playlist.dart';
-import 'package:untitled/domains/usecases/playlist/handle_play_playlist.dart';
+import 'package:moodsic/core/config/theme/app_colors.dart';
+import 'package:moodsic/core/widgets/custom_network_image.dart';
+import 'package:moodsic/core/widgets/like_btn.dart';
+import 'package:moodsic/core/widgets/play_pause_btn.dart';
+import 'package:moodsic/domains/usecases/playlist/handle_like_playlist.dart';
+import 'package:moodsic/domains/usecases/playlist/handle_play_playlist.dart';
 
 class PlaylistCard extends StatefulWidget {
   final String id;
@@ -35,30 +35,15 @@ class PlaylistCard extends StatefulWidget {
 }
 
 class _PlaylistCardState extends State<PlaylistCard> {
-  late bool isPlaying;
-  late bool isLiked;
-
   @override
   void initState() {
     super.initState();
-    isPlaying = widget.isPlaying;
-    isLiked = widget.isLiked;
-  }
-
-  void onToggleLike(bool newState) {
-    setState(() {
-      isLiked = newState;
-    });
-  }
-
-  void onTogglePlay(bool newState) {
-    setState(() {
-      isPlaying = newState;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+    bool isPlaying = widget.isPlaying;
+    bool isLiked = widget.isLiked;
     final formattedDate = DateFormat(
       'dd/MM/yyyy',
     ).format(widget.createdDate ?? DateTime.now());
@@ -89,8 +74,8 @@ class _PlaylistCardState extends State<PlaylistCard> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppColors.oceanBlue800,
-                    AppColors.oceanBlue800.withOpacity(0.0),
+                    AppColors.oceanBlue700,
+                    AppColors.oceanBlue700.withOpacity(0.0),
                   ],
                   stops: [0.0, 56 / 212],
                 ),
@@ -103,14 +88,14 @@ class _PlaylistCardState extends State<PlaylistCard> {
               left: 0,
               right: 0,
               height: 56,
-              child: Container(color: AppColors.oceanBlue800),
+              child: Container(color: AppColors.oceanBlue700),
             ),
 
             // Artist
             Positioned(
-              top: 0,
+              top: 4,
               left: 12,
-              right: 12,
+              right: 28,
               height: 56,
               child: Padding(
                 padding: const EdgeInsets.only(right: 24, top: 8),
@@ -123,7 +108,7 @@ class _PlaylistCardState extends State<PlaylistCard> {
                     color: AppColors.oceanBlue50,
                     fontFamily: 'Recursive',
                     fontVariations: [
-                      FontVariation('wght', 200),
+                      FontVariation('wght', 400),
                       FontVariation('MONO', 1.0),
                     ],
                   ),
@@ -153,7 +138,7 @@ class _PlaylistCardState extends State<PlaylistCard> {
                         fontSize: 7,
                         color: AppColors.oceanBlue50,
                         fontVariations: [
-                          FontVariation('wght', 800),
+                          FontVariation('wght', 700),
                           FontVariation('MONO', 1),
                           FontVariation('CASL', 1),
                         ],
@@ -189,12 +174,9 @@ class _PlaylistCardState extends State<PlaylistCard> {
               bottom: 24,
               right: 12,
               child: PlayPauseButton(
+                size: 24,
                 id: widget.id,
                 isPlaying: isPlaying,
-                onTap: buildPlayHandler(
-                  isPlaying: isPlaying,
-                  onToggle: onTogglePlay,
-                ),
               ),
             ),
 
@@ -202,14 +184,7 @@ class _PlaylistCardState extends State<PlaylistCard> {
             Positioned(
               top: 8,
               right: 12,
-              child: LikeButton(
-                id: widget.id,
-                isLiked: isLiked,
-                onTap: buildLikeHandler(
-                  isLiked: isLiked,
-                  onToggle: onToggleLike,
-                ),
-              ),
+              child: LikeButton(id: widget.id, isLiked: isLiked, size: 24),
             ),
           ],
         ),

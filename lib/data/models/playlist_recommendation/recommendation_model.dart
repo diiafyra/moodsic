@@ -1,5 +1,4 @@
-
-import 'package:untitled/data/models/playlist_recommendation/seed.dart';
+import 'package:moodsic/data/models/playlist_recommendation/seed.dart';
 
 import '../track.dart';
 
@@ -11,12 +10,14 @@ class RecommendationResponse {
 
   factory RecommendationResponse.fromJson(Map<String, dynamic> json) {
     return RecommendationResponse(
-      seeds: (json['seeds'] as List<dynamic>)
-          .map((e) => Seed.fromJson(e))
-          .toList(),
-      tracks: (json['tracks'] as List<dynamic>)
-          .map((e) => Track.fromJson(e))
-          .toList(),
+      seeds:
+          (json['seeds'] as List<dynamic>)
+              .map((e) => Seed.fromJson(e))
+              .toList(),
+      tracks:
+          (json['tracks'] as List<dynamic>)
+              .map((e) => Track.fromJson(e))
+              .toList(),
     );
   }
 }

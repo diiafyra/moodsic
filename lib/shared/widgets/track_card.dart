@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/core/widgets/add_button.dart';
-import 'package:untitled/domains/usecases/playlist/handle_add_playlist.dart';
+import 'package:moodsic/core/widgets/add_btn.dart';
+import 'package:moodsic/domains/usecases/playlist/handle_add_playlist.dart';
 import '../../core/config/theme/app_colors.dart';
 
 class TrackCard extends StatelessWidget {

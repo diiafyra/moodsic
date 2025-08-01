@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/shared/widgets/playlist_card.dart';
-import 'package:untitled/shared/widgets/track_card.dart';
+import 'package:moodsic/shared/widgets/playlist_card.dart';
+import 'package:moodsic/shared/widgets/track_card.dart';
 
 import 'core/widgets/search_bar.dart'; // Thêm dòng này
 
@@ -18,7 +18,6 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.dark, // Luôn dùng dark mode
       darkTheme: ThemeData.dark(), // Sử dụng theme tối mặc định
       home: const PlaylistScreen(),
-
     );
   }
 }
@@ -34,7 +33,6 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   bool isPlaying = false;
   bool isLiked = false;
   final TextEditingController _searchController = TextEditingController();
-
 
   // void handlePlay() {
   //   setState(() {
@@ -59,7 +57,6 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   //     print("Gọi API: xóa khỏi danh sách yêu thích");
   //   }
   // }
-
 
   @override
   Widget build(BuildContext context) {

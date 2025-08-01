@@ -1,24 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:moodsic/core/config/theme/app_colors.dart';
+import 'package:moodsic/core/utils/validator_textfield.dart';
 
 class CustomFigmaTextField extends StatelessWidget {
-  final String hintText; // Placeholder khi chưa nhập gì
-  final TextEditingController? controller; //  set giá trị cho TextField
-  final TextInputType keyboardType; //  loại bàn phím cần mở ra (text, email, number,...)
-  
+  final String hintText;
+  final TextEditingController? controller;
+  final TextInputType keyboardType;
+  final bool? isRequired;
+  final String? Function(String?)? validator; // <- Thêm validator
+
   const CustomFigmaTextField({
     super.key,
     required this.hintText,
     this.controller,
     this.keyboardType = TextInputType.text,
+    this.isRequired,
+    this.validator,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 339, 
-      child: TextField(
+      width: 339,
+      child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
+        validator:
+            validator ??
+            (value) => getValidatorForKeyboardType(
+              keyboardType,
+              value ?? '',
+              isRequired ?? true,
+            ),
         style: const TextStyle(
           color: Color(0xFF4F3A1D),
           fontSize: 14,
@@ -36,39 +49,17 @@ class CustomFigmaTextField extends StatelessWidget {
           ),
           filled: true,
           fillColor: Color(0xFFFFFFFF),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide.none,
           ),
+          errorStyle: const TextStyle(color: AppColors.brickRed400),
         ),
       ),
     );
   }
 }
-
-// USE
-//    return Scaffold(
-//       appBar: AppBar(title: const Text('')),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: const [
-//             CustomFigmaTextField(
-//               hintText: 'Username',
-//             ),
-//             SizedBox(height: 16),
-//             CustomFigmaTextField(
-//               hintText: 'Email',
-//               keyboardType: TextInputType.emailAddress,
-//             ),
-//             SizedBox(height: 16),
-//             CustomFigmaTextField(
-//               hintText: 'Số lượng',
-//               keyboardType: TextInputType.number,
-//             ),
-//           ],
-//         ),
-//       ),
-//     );

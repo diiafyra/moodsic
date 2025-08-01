@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/core/config/theme/app_colors.dart';
+import 'package:moodsic/core/config/theme/app_colors.dart';
 
 class CSearchBar extends StatelessWidget {
   final String hintText;
@@ -18,24 +18,21 @@ class CSearchBar extends StatelessWidget {
     return TextField(
       controller: controller,
       onChanged: onChanged,
-      style: TextStyle(
-        color: AppColors.primary800
-      ),
+      style: TextStyle(color: AppColors.primary800),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: TextStyle(
-          color: AppColors.primary800
-        ),
+        hintStyle: TextStyle(color: AppColors.primary800),
         prefixIcon: const Icon(Icons.search, color: AppColors.primary800),
-        suffixIcon: controller.text.isNotEmpty
-            ? IconButton(
-          icon: const Icon(Icons.clear, color: AppColors.primary800,),
-          onPressed: () {
-            controller.clear();
-            onChanged?.call('');
-          },
-        )
-            : null,
+        suffixIcon:
+            controller.text.isNotEmpty
+                ? IconButton(
+                  icon: const Icon(Icons.clear, color: AppColors.primary800),
+                  onPressed: () {
+                    controller.clear();
+                    onChanged?.call('');
+                  },
+                )
+                : null,
         filled: true,
         fillColor: AppColors.indigoNight50,
         contentPadding: const EdgeInsets.symmetric(vertical: 12.0),

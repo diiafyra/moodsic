@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "50093176860",
+    "project_id": "careful-century-453110-s8",
+    "storage_bucket": "careful-century-453110-s8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:50093176860:android:dc1da7eed689872e0687d9",
+        "android_client_info": {
+          "package_name": "com.example.moodsic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "50093176860-o31rg9ent22at71jv6mnhplfcarebda5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.moodsic",
+            "certificate_hash": "92b477fed3bf34b4163979611399e1637aafe726"
+          }
+        },
+        {
+          "client_id": "50093176860-16thafp1ff15qlv93mmugbhqfci49bjs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7YUWM7k-68e4eMnS7QsTFn4M822wprfU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "50093176860-16thafp1ff15qlv93mmugbhqfci49bjs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

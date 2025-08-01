@@ -1,4 +1,4 @@
-import 'package:untitled/shared/widgets/track_dto.dart';
+import 'package:moodsic/shared/widgets/track_dto.dart';
 
 class PlaylistDto {
   final String id;
@@ -22,6 +22,6 @@ class PlaylistDto {
     this.isLiked = false,
     this.createdDate,
     this.tracks,
-    required this.isMain
+    required this.isMain,
   });
 }
