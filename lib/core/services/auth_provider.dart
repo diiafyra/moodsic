@@ -54,8 +54,6 @@ class CAuthProvider extends ChangeNotifier {
       _initialized = true;
       notifyListeners();
     });
-
-    _setupFcmListeners();
   }
 
   Future<void> _uploadFcmToken(String uid) async {
@@ -78,17 +76,5 @@ class CAuthProvider extends ChangeNotifier {
     } catch (e) {
       print('[FCM] Error uploading token: $e');
     }
-  }
-
-  void _setupFcmListeners() {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print(
-        '[FCM] Message received in foreground: ${message.notification?.title}',
-      );
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('[FCM] App opened from notification: ${message.data}');
-    });
   }
 }

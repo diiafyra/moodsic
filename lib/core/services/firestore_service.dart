@@ -20,6 +20,7 @@ class FirestoreService {
 
   Future<List<Map<String, dynamic>>> getRecentUsers(int limit) async {
     print('FirestoreService: Getting recent users, limit: $limit');
+
     final snapshot =
         await _firestore
             .collection('users')
@@ -36,6 +37,8 @@ class FirestoreService {
               },
             )
             .toList();
+    print(snapshot.docs.map((d) => d.id).toList());
+
     print('FirestoreService: Fetched ${users.length} recent users');
     return users;
   }
@@ -90,6 +93,7 @@ class FirestoreService {
             'updatedAt': data['updatedAt'],
           };
         }).toList();
+    print(snapshot.docs.map((d) => d.id).toList());
 
     print('FirestoreService: Fetched ${users.length} paginated users');
     return {

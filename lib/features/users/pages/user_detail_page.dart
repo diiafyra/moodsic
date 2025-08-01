@@ -23,34 +23,21 @@ class _UserDetailPageState extends State<UserDetailPage> {
   }
 
   Future<void> _sendNotification() async {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) {
-      _showSnackBar('Admin not authenticated');
-      return;
-    }
-
-    final senderId = currentUser.uid;
-    final message = _notificationController.text.trim();
-
-    if (message.isEmpty) {
-      _showSnackBar('Please enter a message');
-      return;
-    }
-
     setState(() => _loading = true);
 
-    try {
-      await NotificationService.callSendNotificationFunction(
-        userId: widget.uid,
-        senderId: senderId,
-        message: message,
-      );
+    final error = await NotificationService.sendNotificationToUser(
+      targetUserId: widget.uid,
+      message: _notificationController.text,
+      recipientType: 'Specific User',
+    );
+
+    if (error != null) {
+      _showSnackBar(error);
+    } else {
       _showSnackBar('Notification sent successfully!');
-    } catch (e) {
-      _showSnackBar('Error sending notification: $e');
-    } finally {
-      setState(() => _loading = false);
     }
+
+    setState(() => _loading = false);
   }
 
   void _showSnackBar(String msg) {
