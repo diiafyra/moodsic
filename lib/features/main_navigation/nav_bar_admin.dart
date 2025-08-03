@@ -22,7 +22,8 @@ class _AdminNavigationPageState extends State<AdminNavigationPage> {
   final List<Widget> _pages = [
     AdminHomePage(),
     UsersPage(),
-    PlaylistDetail(playlists: samplePlaylists),
+    UsersPage(),
+    // PlaylistDetail(playlists: samplePlaylists),
     SendNotificationPage(),
     //?
   ];

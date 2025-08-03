@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moodsic/core/services/auth_provider.dart';
+import 'package:moodsic/shared/states/auth_provider.dart';
 import 'package:moodsic/features/auth/pages/login.dart';
 import 'package:moodsic/features/main_navigation/nav_bar_admin.dart';
 import 'package:provider/provider.dart';

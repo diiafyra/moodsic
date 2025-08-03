@@ -8,7 +8,7 @@ class SpotifyAuth {
   static const _redirectUri = 'moodsic://callback';
   static const _scopes = 'user-read-private user-read-email user-top-read';
 
-  Future<Map<String, String>?> authenticate() async {
+  Future<Map<String, dynamic>?> authenticate() async {
     print('SPOTIFYYYYY');
 
     final authUrl = Uri.https('accounts.spotify.com', '/authorize', {
@@ -45,10 +45,15 @@ class SpotifyAuth {
       final tokenData = jsonDecode(response.body);
       final accessToken = tokenData['access_token'];
       final refreshToken = tokenData['refresh_token'];
+      final expiredIn = tokenData['expires_in'];
 
       if (accessToken == null || refreshToken == null) return null;
 
-      return {'accessToken': accessToken, 'refreshToken': refreshToken};
+      return {
+        'accessToken': accessToken,
+        'refreshToken': refreshToken,
+        'expiredIn': expiredIn,
+      };
     } catch (e) {
       print('SpotifyAuth Error: $e');
       return null;

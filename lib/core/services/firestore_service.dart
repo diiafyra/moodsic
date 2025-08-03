@@ -12,8 +12,7 @@ class FirestoreService {
 
   Future<int> getTotalRequests() async {
     print('FirestoreService: Getting total requests');
-    final snapshot =
-        await _firestore.collection('recommendation_requests').get();
+    final snapshot = await _firestore.collection('recommendation_logs').get();
     print('FirestoreService: Total requests: ${snapshot.docs.length}');
     return snapshot.docs.length;
   }

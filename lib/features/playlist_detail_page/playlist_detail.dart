@@ -3,11 +3,11 @@ import 'package:moodsic/core/config/theme/app_colors.dart';
 import 'package:moodsic/core/widgets/happy_button.dart';
 import 'package:moodsic/core/widgets/sad_button.dart';
 import 'package:moodsic/core/widgets/scroll_to_top_button.dart';
-import 'package:moodsic/shared/widgets/playlist_content.dart';
-import 'package:moodsic/shared/widgets/playlist_dto.dart';
+import 'package:moodsic/features/playlist_suggestion/viewmodel/playlist_viewmodel.dart';
+import 'package:moodsic/features/playlist_suggestion/widgets/playlist_content.dart';
 
 class PlaylistDetail extends StatefulWidget {
-  final List<PlaylistDto> playlists;
+  final List<PlaylistViewModel> playlists;
 
   const PlaylistDetail({super.key, required this.playlists});
 
@@ -16,8 +16,8 @@ class PlaylistDetail extends StatefulWidget {
 }
 
 class _PlaylistDetailState extends State<PlaylistDetail> {
-  late PlaylistDto mainPlaylist;
-  late List<PlaylistDto> otherPlaylists;
+  late PlaylistViewModel mainPlaylist;
+  late List<PlaylistViewModel> otherPlaylists;
   late bool isLiked;
   late bool isPlaying;
   final ScrollController _scrollController = ScrollController();
@@ -26,10 +26,10 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
   void initState() {
     super.initState();
     mainPlaylist = widget.playlists.firstWhere(
-      (p) => p.isMain,
+      (p) => p.playlist.isMain,
       orElse: () => widget.playlists.first,
     );
-    otherPlaylists = widget.playlists.where((p) => !p.isMain).toList();
+    otherPlaylists = widget.playlists.where((p) => !p.playlist.isMain).toList();
     isLiked = mainPlaylist.isLiked;
     isPlaying = mainPlaylist.isPlaying;
   }

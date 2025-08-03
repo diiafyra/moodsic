@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moodsic/core/services/auth_provider.dart'; // Thêm import
+import 'package:moodsic/shared/states/auth_provider.dart'; // Thêm import
 import 'package:moodsic/core/widgets/stat_card.dart';
 import 'package:moodsic/features/home/models/admin_home_viewmodelt.dart';
 import 'package:moodsic/features/home/widgets/user_list.dart';

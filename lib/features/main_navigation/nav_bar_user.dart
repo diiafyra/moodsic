@@ -19,9 +19,12 @@ class _UserNavigationPageState extends State<UserNavigationPage> {
 
   final List<Widget> _pages = [
     UserHomePage(),
-    PlaylistDetail(playlists: samplePlaylists),
-    PlaylistDetail(playlists: samplePlaylists),
-    PlaylistDetail(playlists: samplePlaylists),
+    UserHomePage(),
+    UserHomePage(),
+    UserHomePage(),
+    // PlaylistDetail(playlists: samplePlaylists),
+    // PlaylistDetail(playlists: samplePlaylists),
+    // PlaylistDetail(playlists: samplePlaylists),
     //?
   ];
 

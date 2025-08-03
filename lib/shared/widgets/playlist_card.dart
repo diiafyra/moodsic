@@ -126,7 +126,7 @@ class _PlaylistCardState extends State<PlaylistCard> {
               bottom: 0,
               height: 56,
               child: Padding(
-                padding: const EdgeInsets.only(left: 12, right: 24, top: 8),
+                padding: const EdgeInsets.only(left: 12, right: 60, top: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,

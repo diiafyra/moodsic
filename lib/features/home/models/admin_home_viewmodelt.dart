@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:moodsic/core/services/firestore_service.dart';
 import 'package:moodsic/core/utils/validators.dart';
 import 'package:moodsic/data/models/user.dart';
-import 'package:moodsic/data/repositories/RecommendationRepository.dart';
+import 'package:moodsic/data/repositories/recommendation_repository.dart';
 import 'package:moodsic/data/repositories/user_repository.dart';
 import 'package:moodsic/domains/usecases/fetch_recent_users.dart';
 import 'package:moodsic/domains/usecases/fetch_total_requests.dart';

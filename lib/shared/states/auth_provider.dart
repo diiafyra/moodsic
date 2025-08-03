@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class CAuthProvider extends ChangeNotifier {
   static final CAuthProvider instance = CAuthProvider._internal();
@@ -20,46 +20,38 @@ class CAuthProvider extends ChangeNotifier {
 
   Future<void> init() async {
     if (_initialized) return;
-    await _init();
-  }
+    print('[CAuthProvider] init called');
+    _loading = true;
+    notifyListeners();
 
-  Future<void> _init() async {
-    print('[CAuthProvider] _init called');
+    try {
+      final user = FirebaseAuth.instance.currentUser;
 
-    FirebaseAuth.instance.authStateChanges().listen((user) async {
-      _loading = true;
-      notifyListeners();
-
-      print('[AuthStateChanged] user: $user');
-
-      try {
-        if (user != null) {
-          _user = user;
-          final idTokenResult = await user.getIdTokenResult(true);
-          _role = idTokenResult.claims?['role']?.toString() ?? 'user';
-          print('[AuthProvider] role: $_role');
-          await _uploadFcmToken(user.uid);
-        } else {
-          _user = null;
-          _role = null;
-        }
-      } catch (e, stackTrace) {
-        print('[AuthProvider] Error: $e');
-        print(stackTrace);
+      if (user != null) {
+        _user = user;
+        final idTokenResult = await user.getIdTokenResult(true);
+        _role = idTokenResult.claims?['role']?.toString() ?? 'user';
+        await _uploadFcmToken(user.uid);
+      } else {
         _user = null;
         _role = null;
       }
+    } catch (e, stackTrace) {
+      print('[AuthProvider] Error during init: $e');
+      print(stackTrace);
+      _user = null;
+      _role = null;
+    }
+    print('[user] ${_user}');
 
-      _loading = false;
-      _initialized = true;
-      notifyListeners();
-    });
+    _loading = false;
+    _initialized = true;
+    notifyListeners();
   }
 
   Future<void> _uploadFcmToken(String uid) async {
     try {
       final fcmToken = await FirebaseMessaging.instance.getToken();
-      print('[FCM] Token: $fcmToken');
 
       if (fcmToken != null && fcmToken.isNotEmpty) {
         final userRef = FirebaseFirestore.instance.collection('users').doc(uid);
@@ -68,9 +60,6 @@ class CAuthProvider extends ChangeNotifier {
 
         if (existingToken != fcmToken) {
           await userRef.set({'fcmToken': fcmToken}, SetOptions(merge: true));
-          print('[FCM] Token uploaded to Firestore');
-        } else {
-          print('[FCM] Token already up-to-date');
         }
       }
     } catch (e) {

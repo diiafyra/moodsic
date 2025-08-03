@@ -1,4 +1,4 @@
-import 'package:moodsic/data/repositories/RecommendationRepository.dart';
+import 'package:moodsic/data/repositories/recommendation_repository.dart';
 
 class FetchTotalRequests {
   final RecommendationRepository _recommendationRepository;

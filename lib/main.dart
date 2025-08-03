@@ -5,7 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:moodsic/core/services/notification_service.dart';
 import 'package:moodsic/routes/app_routes.dart';
 import 'package:provider/provider.dart';
-import 'package:moodsic/core/services/auth_provider.dart';
+import 'package:moodsic/shared/states/auth_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -79,8 +79,8 @@ class MyApp extends StatelessWidget {
         return ChangeNotifierProvider.value(
           value: CAuthProvider.instance,
           child: MaterialApp.router(
-            routerConfig: router,
             debugShowCheckedModeBanner: false,
+            routerConfig: appRouter,
           ),
         );
       },

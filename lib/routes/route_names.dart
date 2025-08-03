@@ -6,4 +6,5 @@ class RouteNames {
   static const String sendNotification = '/send-notification';
   static const String login = '/login';
   static const String register = '/register';
+  static const String loading = '/loading';
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
+import 'package:moodsic/core/config/env.dart';
 import '../../shared/services/spotify_auth.dart';
 
 class SpotifyAuthService {
@@ -11,17 +12,25 @@ class SpotifyAuthService {
       // Bước 1: Lấy accessToken và refreshToken từ Spotify
       final tokenMap = await _spotifyAuth.authenticate();
       if (tokenMap == null) return null;
+      print(tokenMap);
 
       final accessToken = tokenMap['accessToken'];
       final refreshToken = tokenMap['refreshToken'];
 
+      final expiredIn = tokenMap['expiredIn'];
+      print('EXPIRED ${expiredIn}');
+      final DateTime expiredAt = DateTime.now().add(
+        Duration(seconds: (expiredIn)),
+      );
+
       // Bước 2: Gửi accessToken lên backend để nhận Firebase token
       final backendResponse = await http.post(
-        Uri.parse('https://api-pzwsu6yp3q-uc.a.run.app/spotify/login'),
+        Uri.parse('${Env.baseUrl}/spotify/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'accessToken': accessToken,
           'refreshToken': refreshToken,
+          'expiredAt': expiredAt.toIso8601String(),
         }),
       );
 
