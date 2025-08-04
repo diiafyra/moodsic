@@ -6,7 +6,8 @@ class SpotifyAuth {
   static const _clientId = '17cc8dffd25c4b5996e0a047c8c12f07';
   static const _clientSecret = 'c4e8e714cce74646a70f6e3bdc48fd60';
   static const _redirectUri = 'moodsic://callback';
-  static const _scopes = 'user-read-private user-read-email user-top-read';
+  static const _scopes =
+      'user-read-private user-read-email playlist-modify-public playlist-modify-private';
 
   Future<Map<String, dynamic>?> authenticate() async {
     print('SPOTIFYYYYY');

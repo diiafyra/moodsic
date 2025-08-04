@@ -134,4 +134,17 @@ class CAuthProvider extends ChangeNotifier {
     _isAuthenticating = false;
     notifyListeners();
   }
+
+  Future<void> signOut(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      reset();
+
+      // (Tùy chọn) Nếu muốn điều hướng sau khi đăng xuất:
+      // Navigator.pushReplacementNamed(context, '/login'); hoặc '/splash'
+      print('[AuthProvider] User signed out');
+    } catch (e) {
+      print('[AuthProvider] Error during sign out: $e');
+    }
+  }
 }

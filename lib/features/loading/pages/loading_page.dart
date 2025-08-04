@@ -28,10 +28,13 @@ class _LoadingPageState extends State<LoadingPage> {
     // Lúc này provider đã cập nhật thông tin user & role
     if (mounted) {
       if (provider.user == null) {
+        debugPrint('tới login');
         context.go('/login');
       } else if (provider.role == 'admin') {
+        debugPrint('tới admin');
         context.go('/admin-home');
       } else {
+        debugPrint('tới user');
         context.go('/user-home');
       }
     }

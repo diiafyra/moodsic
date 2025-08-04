@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:moodsic/core/config/theme/app_colors.dart';
 import 'package:moodsic/features/playlist_suggestion/viewmodel/playlist_viewmodel.dart';
+import 'package:moodsic/features/recommendation_logs/models/pages/recommendation_log_page.dart';
+import 'package:moodsic/features/recommendation_logs/models/recommendation_log.dart';
 import 'package:moodsic/samples/samplePlaylists.dart';
 import 'package:moodsic/shared/widgets/mood_painter/mood_canvas_painter_widget.dart';
 import 'package:moodsic/features/playlist_suggestion/widgets/playlist_content.dart';
@@ -243,25 +245,35 @@ class _UserHomePageState extends State<UserHomePage>
             ),
           ),
           const SizedBox(width: 16),
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white.withOpacity(0.3),
-                width: 2,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const RecommendationLogsScreen(),
                 ),
-              ],
-            ),
-            child: CircleAvatar(
-              radius: 28,
-              backgroundImage: const NetworkImage(
-                'https://i.pravatar.cc/100?img=10',
+              );
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.3),
+                  width: 2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const CircleAvatar(
+                radius: 28,
+                backgroundImage: NetworkImage(
+                  'https://i.pravatar.cc/100?img=10',
+                ),
               ),
             ),
           ),

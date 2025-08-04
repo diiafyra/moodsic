@@ -27,9 +27,9 @@ class SurveyProvider with ChangeNotifier {
       final musicProfile = await _firestoreService.getMusicProfile();
 
       if (musicProfile != null) {
-        selectedGenres = musicProfile.genres;
-        selectedArtists = musicProfile.artists;
-        selectedTracks = musicProfile.tracks;
+        selectedGenres = musicProfile.genres ?? [];
+        selectedArtists = musicProfile.artists ?? [];
+        selectedTracks = musicProfile.tracks ?? [];
 
         developer.log(
           '[SurveyProvider] Initialized with: '

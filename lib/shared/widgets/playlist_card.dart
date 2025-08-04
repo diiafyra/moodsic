@@ -195,7 +195,7 @@ class _PlaylistCardState extends State<PlaylistCard> {
                     // Ngăn không cho navigate khi tap vào play button
                   },
                   child: PlayPauseButton(
-                    size: 24,
+                    size: 40,
                     id: model.id,
                     isPlaying: isPlaying,
                   ),

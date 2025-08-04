@@ -26,8 +26,8 @@ class ArtistViewmodel {
     return ArtistViewmodel(
       id: json['id'] ?? '',
       name: json['name'] ?? '',
-      imageUrl: json['imageUrl'],
-      genre: json['genre'],
+      imageUrl: json['imageUrl'] ?? '',
+      genre: json['genre'] ?? '',
     );
   }
 

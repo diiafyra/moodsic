@@ -30,7 +30,7 @@ class PlaylistModel {
 
   /// ✅ Tạo từ JSON Spotify API
   factory PlaylistModel.fromJson(Map<String, dynamic> json) {
-    final images = json['images'] as List<dynamic>?;
+    final images = (json['images'] ?? []) as List<dynamic>?;
     final tracksInfo = json['tracks'] as Map<String, dynamic>?;
 
     debugPrint(json['id']);
@@ -61,14 +61,17 @@ class PlaylistModel {
       description: data['description'] ?? '',
       artists: List<String>.from(data['artists'] ?? []),
       createdDate:
-          (data['createdDate'] != null)
-              ? (data['createdDate'] as Timestamp).toDate()
+          (data['createdAt'] != null)
+              ? (data['createdAt'] as Timestamp).toDate()
               : null,
       isMain: data['isMain'] ?? false,
       likedAt:
-          (data['createdAt'] != null)
-              ? DateTime.tryParse(data['createdAt'])
+          data['likedAt'] is Timestamp
+              ? (data['likedAt'] as Timestamp).toDate()
+              : data['likedAt'] is String
+              ? DateTime.tryParse(data['likedAt'])
               : null,
+
       trackHref: data['trackHref'],
       totalTracks: data['totalTracks'],
     );

@@ -4,6 +4,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moodsic/core/config/theme/app_colors.dart';
 import 'package:moodsic/features/fav_playlist/pages/fav_playlist.dart';
 import 'package:moodsic/features/home/pages/user_home_page.dart';
+import 'package:moodsic/features/profile/pages/profile_page.dart';
+import 'package:moodsic/features/search/pages/createPlaylistPage.dart';
 import 'package:moodsic/samples/samplePlaylists.dart';
 import 'package:moodsic/features/playlist_detail_page/pages/playlist_detail.dart';
 //?
@@ -21,8 +23,8 @@ class _UserNavigationPageState extends State<UserNavigationPage> {
   final List<Widget> _pages = [
     UserHomePage(),
     FavPlaylistPage(),
-    UserHomePage(),
-    UserHomePage(),
+    CreatePlaylistPage(),
+    ProfilePage(),
     // PlaylistDetail(playlists: samplePlaylists),
     // PlaylistDetail(playlists: samplePlaylists),
     // PlaylistDetail(playlists: samplePlaylists),

@@ -1,8 +1,10 @@
 import 'dart:developer' as developer;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:moodsic/data/models/music_profle.dart';
 import 'package:moodsic/data/models/playlist_model.dart';
+import 'package:moodsic/features/recommendation_logs/models/recommendation_log.dart';
 
 class FirestoreService {
   final FirebaseFirestore _firestore;
@@ -284,6 +286,61 @@ class FirestoreService {
 
     return snapshot.docs
         .map((doc) => PlaylistModel.fromFirestore(doc.data()))
+        .toList();
+  }
+
+  /// ✅ Lấy danh sách playlist đã thích
+  Future<List<PlaylistModel>> getMyPlaylists() async {
+    if (_auth.currentUser == null) {
+      throw Exception('chưa đăng nhập');
+    }
+    final snapshot =
+        await _firestore
+            .collection('users')
+            .doc(_auth.currentUser?.uid)
+            .collection('my_playlists')
+            .get();
+
+    return snapshot.docs
+        .map((doc) => PlaylistModel.fromFirestore(doc.data()))
+        .toList();
+  }
+
+  Stream<List<RecommendationLog>> getUserRecommendationLogs() {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+
+    return _firestore
+        .collection('recommendation_logs')
+        .doc(uid)
+        .collection('logs')
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs
+              .map((doc) => RecommendationLog.fromFirestore(doc))
+              .toList();
+        });
+  }
+
+  Future<List<RecommendationLog>> getUserRecommendationLogsPaginated(
+    String uid, {
+    DocumentSnapshot? lastDocument,
+    int limit = 20,
+  }) async {
+    Query query = _firestore
+        .collection('recommendation_logs')
+        .doc(uid)
+        .collection('logs')
+        .orderBy('timestamp', descending: true)
+        .limit(limit);
+
+    if (lastDocument != null) {
+      query = query.startAfterDocument(lastDocument);
+    }
+
+    QuerySnapshot snapshot = await query.get();
+    return snapshot.docs
+        .map((doc) => RecommendationLog.fromFirestore(doc))
         .toList();
   }
 }

@@ -205,4 +205,46 @@ class ApiService {
       throw Exception('Error searching tracks: $e');
     }
   }
+
+  static Future<bool> createPlaylistWithTracks({
+    required String name,
+    required List<TrackViewmodel> tracks,
+  }) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null || uid.isEmpty) {
+      debugPrint('❌ User chưa đăng nhập');
+      return false;
+    }
+
+    final url = '${Env.baseUrl}/spotify/create-playlist';
+    final trackUris =
+        tracks.map((track) => 'spotify:track:${track.id}').toList();
+
+    final body = jsonEncode({
+      'userId': uid,
+      'name': name,
+      'trackUris': trackUris,
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: body,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        debugPrint('✅ Playlist đã được tạo thành công');
+        return true;
+      } else {
+        debugPrint(
+          '❌ Tạo playlist thất bại: ${response.statusCode} - ${response.body}',
+        );
+        return false;
+      }
+    } catch (e) {
+      debugPrint('❌ Lỗi khi gọi createPlaylistWithTracks: $e');
+      return false;
+    }
+  }
 }

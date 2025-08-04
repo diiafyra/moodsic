@@ -14,11 +14,13 @@ final getIt = GetIt.instance;
 class TrackSelectionWidget extends StatefulWidget {
   final Function(List<TrackViewmodel>)? onSelectionChanged;
   final int maxSelection;
+  final bool isCreatePlaylist;
 
   const TrackSelectionWidget({
     super.key,
     this.onSelectionChanged,
     this.maxSelection = 10,
+    this.isCreatePlaylist = false,
   });
 
   @override
@@ -60,17 +62,18 @@ class _TrackSelectionWidgetState extends State<TrackSelectionWidget> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'BÀI HÁT YÊU THÍCH CỦA BẠN?\nchọn tối đa 10',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w400,
+              if (!widget.isCreatePlaylist) ...[
+                const Text(
+                  'BÀI HÁT YÊU THÍCH CỦA BẠN?\nchọn tối đa 10',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-
+                const SizedBox(height: 20),
+              ],
               CSearchBar(
                 hintText: 'Tìm bài hát',
                 controller: _searchController,
@@ -78,18 +81,19 @@ class _TrackSelectionWidgetState extends State<TrackSelectionWidget> {
               ),
               const SizedBox(height: 16),
 
-              SelectionCounterWidget(
-                selectedCount: viewModel.selectedTracks.length,
-                maxSelection: widget.maxSelection,
-              ),
-              const SizedBox(height: 20),
+              if (!widget.isCreatePlaylist) ...[
+                SelectionCounterWidget(
+                  selectedCount: viewModel.selectedTracks.length,
+                  maxSelection: widget.maxSelection,
+                ),
+                const SizedBox(height: 20),
 
-              SelectedTracksWidget(
-                selectedTracks: viewModel.selectedTracks,
-                onTrackRemove: viewModel.removeTrack,
-              ),
-              const SizedBox(height: 20),
-
+                SelectedTracksWidget(
+                  selectedTracks: viewModel.selectedTracks,
+                  onTrackRemove: viewModel.removeTrack,
+                ),
+                const SizedBox(height: 20),
+              ],
               if (viewModel.isSearching || viewModel.searchResults.isNotEmpty)
                 SearchTrackResultsWidget(
                   isSearching: viewModel.isSearching,

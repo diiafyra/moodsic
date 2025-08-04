@@ -16,15 +16,23 @@ class FavPlaylistPage extends StatefulWidget {
 class _FavPlaylistPageState extends State<FavPlaylistPage> {
   final TextEditingController _searchController = TextEditingController();
   final FirestoreService _firestoreService = GetIt.instance<FirestoreService>();
-  List<PlaylistViewModel> _allPlaylists = [];
-  List<PlaylistViewModel> _filteredPlaylists = [];
-  bool _isLoading = true;
+
+  // Liked playlists
+  List<PlaylistViewModel> _allLikedPlaylists = [];
+  List<PlaylistViewModel> _filteredLikedPlaylists = [];
+
+  // My playlists
+  List<PlaylistViewModel> _allMyPlaylists = [];
+  List<PlaylistViewModel> _filteredMyPlaylists = [];
+
+  bool _isLoadingLiked = true;
+  bool _isLoadingMy = true;
   String _errorMessage = '';
 
   @override
   void initState() {
     super.initState();
-    _loadLikedPlaylists();
+    _loadAllPlaylists();
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -34,34 +42,68 @@ class _FavPlaylistPageState extends State<FavPlaylistPage> {
     super.dispose();
   }
 
+  Future<void> _loadAllPlaylists() async {
+    await Future.wait([_loadLikedPlaylists(), _loadMyPlaylists()]);
+  }
+
   Future<void> _loadLikedPlaylists() async {
     try {
       setState(() {
-        _isLoading = true;
+        _isLoadingLiked = true;
         _errorMessage = '';
       });
 
       final likedPlaylists = await _firestoreService.getLikedPlaylists();
 
-      // Convert PlaylistModel to PlaylistViewModel
       final viewModels =
           likedPlaylists.map((playlist) {
             return PlaylistViewModel(
               playlist: playlist,
-              isLiked: true, // Tất cả đều đã được like
-              isPlaying: false, // Mặc định không đang phát
+              isLiked: true,
+              isPlaying: false,
             );
           }).toList();
 
       setState(() {
-        _allPlaylists = viewModels;
-        _filteredPlaylists = viewModels;
-        _isLoading = false;
+        _allLikedPlaylists = viewModels;
+        _filteredLikedPlaylists = viewModels;
+        _isLoadingLiked = false;
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Lỗi khi tải danh sách: $e';
-        _isLoading = false;
+        _errorMessage = 'Lỗi khi tải playlist yêu thích: $e';
+        _isLoadingLiked = false;
+      });
+    }
+  }
+
+  Future<void> _loadMyPlaylists() async {
+    try {
+      setState(() {
+        _isLoadingMy = true;
+        _errorMessage = '';
+      });
+
+      final myPlaylists = await _firestoreService.getMyPlaylists();
+
+      final viewModels =
+          myPlaylists.map((playlist) {
+            return PlaylistViewModel(
+              playlist: playlist,
+              isLiked: false, // Sẽ được xác định sau
+              isPlaying: false,
+            );
+          }).toList();
+
+      setState(() {
+        _allMyPlaylists = viewModels;
+        _filteredMyPlaylists = viewModels;
+        _isLoadingMy = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Lỗi khi tải playlist của bạn: $e';
+        _isLoadingMy = false;
       });
     }
   }
@@ -70,10 +112,20 @@ class _FavPlaylistPageState extends State<FavPlaylistPage> {
     final query = _searchController.text.toLowerCase();
     setState(() {
       if (query.isEmpty) {
-        _filteredPlaylists = _allPlaylists;
+        _filteredLikedPlaylists = _allLikedPlaylists;
+        _filteredMyPlaylists = _allMyPlaylists;
       } else {
-        _filteredPlaylists =
-            _allPlaylists.where((playlist) {
+        _filteredLikedPlaylists =
+            _allLikedPlaylists.where((playlist) {
+              return playlist.name?.toLowerCase().contains(query) == true ||
+                  playlist.description.toLowerCase().contains(query) ||
+                  playlist.artists.any(
+                    (artist) => artist.toLowerCase().contains(query),
+                  );
+            }).toList();
+
+        _filteredMyPlaylists =
+            _allMyPlaylists.where((playlist) {
               return playlist.name?.toLowerCase().contains(query) == true ||
                   playlist.description.toLowerCase().contains(query) ||
                   playlist.artists.any(
@@ -85,7 +137,7 @@ class _FavPlaylistPageState extends State<FavPlaylistPage> {
   }
 
   Future<void> _onRefresh() async {
-    await _loadLikedPlaylists();
+    await _loadAllPlaylists();
   }
 
   @override
@@ -119,6 +171,8 @@ class _FavPlaylistPageState extends State<FavPlaylistPage> {
   }
 
   Widget _buildHeader() {
+    final totalPlaylists = _allLikedPlaylists.length + _allMyPlaylists.length;
+
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Row(
@@ -129,7 +183,7 @@ class _FavPlaylistPageState extends State<FavPlaylistPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Playlist Yêu Thích',
+                  'Thư Viện Playlist',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -138,7 +192,7 @@ class _FavPlaylistPageState extends State<FavPlaylistPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${_allPlaylists.length} playlist',
+                  '$totalPlaylists playlist tổng cộng',
                   style: const TextStyle(
                     fontSize: 14,
                     color: AppColors.oceanBlue300,
@@ -147,7 +201,6 @@ class _FavPlaylistPageState extends State<FavPlaylistPage> {
               ],
             ),
           ),
-          // Refresh button
           Container(
             decoration: BoxDecoration(
               color: AppColors.oceanBlue700.withOpacity(0.5),
@@ -167,7 +220,7 @@ class _FavPlaylistPageState extends State<FavPlaylistPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: CSearchBar(
-        hintText: 'Tìm kiếm playlist yêu thích...',
+        hintText: 'Tìm kiếm playlist...',
         controller: _searchController,
         onChanged: (_) => _onSearchChanged(),
       ),
@@ -175,7 +228,7 @@ class _FavPlaylistPageState extends State<FavPlaylistPage> {
   }
 
   Widget _buildContent() {
-    if (_isLoading) {
+    if (_isLoadingLiked || _isLoadingMy) {
       return _buildLoadingState();
     }
 
@@ -183,15 +236,140 @@ class _FavPlaylistPageState extends State<FavPlaylistPage> {
       return _buildErrorState();
     }
 
-    if (_allPlaylists.isEmpty) {
-      return _buildEmptyState();
-    }
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      backgroundColor: AppColors.oceanBlue800,
+      color: AppColors.primary500,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildLikedPlaylistsSection(),
+            const SizedBox(height: 32),
+            _buildMyPlaylistsSection(),
+          ],
+        ),
+      ),
+    );
+  }
 
-    if (_filteredPlaylists.isEmpty) {
-      return _buildNoResultsState();
-    }
+  Widget _buildLikedPlaylistsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader(
+          title: 'Playlist Yêu Thích',
+          count: _filteredLikedPlaylists.length,
+          icon: Icons.favorite,
+        ),
+        const SizedBox(height: 16),
+        if (_filteredLikedPlaylists.isEmpty)
+          _buildEmptySection('Chưa có playlist yêu thích nào')
+        else
+          _buildPlaylistGrid(_filteredLikedPlaylists),
+      ],
+    );
+  }
 
-    return _buildPlaylistGrid();
+  Widget _buildMyPlaylistsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader(
+          title: 'Playlist Của Bạn',
+          count: _filteredMyPlaylists.length,
+          icon: Icons.library_music,
+        ),
+        const SizedBox(height: 16),
+        if (_filteredMyPlaylists.isEmpty)
+          _buildEmptySection('Chưa có playlist nào được tạo')
+        else
+          _buildPlaylistGrid(_filteredMyPlaylists),
+      ],
+    );
+  }
+
+  Widget _buildSectionHeader({
+    required String title,
+    required int count,
+    required IconData icon,
+  }) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.primary500.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: AppColors.primary500, size: 20),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.oceanBlue50,
+                ),
+              ),
+              Text(
+                '$count playlist',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.oceanBlue400,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptySection(String message) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.oceanBlue800.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.oceanBlue700.withOpacity(0.5)),
+      ),
+      child: Column(
+        children: [
+          Icon(Icons.music_note, size: 48, color: AppColors.oceanBlue400),
+          const SizedBox(height: 12),
+          Text(
+            message,
+            style: const TextStyle(color: AppColors.oceanBlue300, fontSize: 14),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlaylistGrid(List<PlaylistViewModel> playlists) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 160 / 212,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+      ),
+      itemCount: playlists.length,
+      itemBuilder: (context, index) {
+        return PlaylistCard(model: playlists[index]);
+      },
+    );
   }
 
   Widget _buildLoadingState() {
@@ -204,7 +382,7 @@ class _FavPlaylistPageState extends State<FavPlaylistPage> {
           ),
           SizedBox(height: 16),
           Text(
-            'Đang tải playlist yêu thích...',
+            'Đang tải playlist...',
             style: TextStyle(color: AppColors.oceanBlue300, fontSize: 16),
           ),
         ],
@@ -245,7 +423,7 @@ class _FavPlaylistPageState extends State<FavPlaylistPage> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _loadLikedPlaylists,
+              onPressed: _loadAllPlaylists,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary500,
                 foregroundColor: Colors.white,
@@ -260,120 +438,6 @@ class _FavPlaylistPageState extends State<FavPlaylistPage> {
               child: const Text('Thử lại'),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.oceanBlue700.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: AppColors.oceanBlue600.withOpacity(0.5),
-                ),
-              ),
-              child: const Icon(
-                Icons.favorite_border,
-                size: 64,
-                color: AppColors.oceanBlue400,
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Chưa có playlist yêu thích',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppColors.oceanBlue200,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Hãy thêm những playlist bạn yêu thích\nvào danh sách để dễ dàng tìm lại!',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.oceanBlue400,
-                height: 1.5,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNoResultsState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppColors.oceanBlue700.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Icon(
-                Icons.search_off,
-                size: 48,
-                color: AppColors.oceanBlue400,
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Không tìm thấy playlist nào',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.oceanBlue200,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Không có playlist nào khớp với từ khóa "${_searchController.text}"',
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.oceanBlue400,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPlaylistGrid() {
-    return RefreshIndicator(
-      onRefresh: _onRefresh,
-      backgroundColor: AppColors.oceanBlue800,
-      color: AppColors.primary500,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: GridView.builder(
-          physics: const AlwaysScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 160 / 212,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-          ),
-          itemCount: _filteredPlaylists.length,
-          itemBuilder: (context, index) {
-            return PlaylistCard(model: _filteredPlaylists[index]);
-          },
         ),
       ),
     );

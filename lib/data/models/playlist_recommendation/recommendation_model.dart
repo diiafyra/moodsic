@@ -15,7 +15,7 @@ class RecommendationResponse {
               .map((e) => Seed.fromJson(e))
               .toList(),
       tracks:
-          (json['tracks'] as List<dynamic>)
+          ((json['tracks'] ?? []) as List<dynamic>)
               .map((e) => Track.fromJson(e))
               .toList(),
     );
