@@ -1,13 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:moodsic/core/services/api_service.dart';
 import 'package:moodsic/data/models/playlist_model.dart';
-import 'package:moodsic/shared/widgets/track_dto.dart';
+import 'package:moodsic/shared/widgets/track_viewmodel.dart';
 
 class PlaylistViewModel {
   PlaylistModel playlist;
   bool _isLiked;
   bool _isPlaying;
-  List<TrackDto> tracks = [];
+  List<TrackViewmodel> tracks = [];
   int currentPage = 0;
   bool hasMoreTracks = true;
   bool isLoading = false;

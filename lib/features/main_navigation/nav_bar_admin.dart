@@ -6,7 +6,7 @@ import 'package:moodsic/features/home/pages/admin_home_page.dart';
 import 'package:moodsic/features/send_noti/pages/send_notification_page.dart';
 import 'package:moodsic/features/users/pages/users.dart';
 import 'package:moodsic/samples/samplePlaylists.dart';
-import 'package:moodsic/features/playlist_detail_page/playlist_detail.dart';
+import 'package:moodsic/features/playlist_detail_page/pages/playlist_detail.dart';
 //?
 
 class AdminNavigationPage extends StatefulWidget {

@@ -5,7 +5,7 @@ import 'package:moodsic/samples/samplePlaylists.dart';
 import 'package:moodsic/shared/widgets/mood_painter/mood_canvas_painter_widget.dart';
 import 'package:moodsic/features/playlist_suggestion/widgets/playlist_content.dart';
 import 'package:moodsic/data/models/playlist_model.dart';
-import 'package:moodsic/shared/widgets/track_dto.dart';
+import 'package:moodsic/shared/widgets/track_viewmodel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class UserHomePage extends StatefulWidget {

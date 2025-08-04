@@ -1,13 +1,16 @@
+import 'dart:ui' show FontVariation;
 import 'package:flutter/material.dart';
-import 'package:moodsic/core/widgets/add_btn.dart';
-import 'package:moodsic/domains/usecases/playlist/handle_add_playlist.dart';
 import '../../core/config/theme/app_colors.dart';
 
 class TrackCard extends StatelessWidget {
   final String id;
   final String title;
   final String? url;
-  final List<String> artists;
+  final String artists;
+  final bool isSelected;
+  final VoidCallback? onTap;
+  final bool
+  isCompact; // Thêm thuộc tính để hiển thị dạng compact (cho danh sách đã chọn)
 
   const TrackCard({
     super.key,
@@ -15,103 +18,104 @@ class TrackCard extends StatelessWidget {
     required this.title,
     this.url,
     required this.artists,
+    this.isSelected = false,
+    this.onTap,
+    this.isCompact = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
-      child: Row(
+    if (isCompact) {
+      // Hiển thị dạng compact cho danh sách đã chọn (avatar tròn)
+      return Stack(
         children: [
-          // Ảnh bài hát hoặc fallback
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child:
-                url != null
-                    ? Image.network(
-                      url!,
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return _fallbackImage();
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return _loadingImage();
-                      },
-                    )
-                    : _fallbackImage(),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundImage: url != null ? NetworkImage(url!) : null,
+                backgroundColor: AppColors.oceanBlue600,
+                child:
+                    url == null
+                        ? const Icon(
+                          Icons.music_note,
+                          color: Colors.white,
+                          size: 24,
+                        )
+                        : null,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Colors.white, fontSize: 10),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
 
-          // Thông tin bài hát
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontFamily: 'Recursive',
-                    fontSize: 18,
-                    fontVariations: [
-                      FontVariation('wght', 500),
-                      FontVariation('MONO', 0),
-                      FontVariation('CASL', 0),
-                    ],
-                    color: AppColors.oceanBlue50,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+          // Nút X nổi lên trên cùng góc phải
+          Positioned(
+            top: 0,
+            right: 0,
+            child: GestureDetector(
+              onTap: onTap,
+              child: Container(
+                padding: const EdgeInsets.all(3),
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  artists.join(', '),
-                  style: const TextStyle(
-                    fontFamily: 'Recursive',
-                    fontSize: 12,
-                    fontVariations: [
-                      FontVariation('MONO', 0),
-                      FontVariation('CASL', 0),
-                    ],
-                    color: Color(0xFFB6CBDC),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                child: const Icon(Icons.close, color: Colors.white, size: 12),
+              ),
             ),
           ),
-
-          // Nút Add được tách ra
-          AddButton(onPressed: () => handleAddPlaylist(id)),
         ],
+      );
+    }
+
+    // Hiển thị dạng đầy đủ cho kết quả tìm kiếm
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        child: Card(
+          color: Colors.white.withOpacity(0.9),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundImage: url != null ? NetworkImage(url!) : null,
+              backgroundColor: AppColors.oceanBlue600,
+              child:
+                  url == null
+                      ? const Icon(Icons.music_note, color: Colors.white)
+                      : null,
+            ),
+            title: Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF2C3E50),
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: Text(
+              artists,
+              style: TextStyle(color: Colors.grey[600]),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            trailing: Icon(
+              isSelected ? Icons.check_circle : Icons.add_circle,
+              color: AppColors.oceanBlue600,
+            ),
+          ),
+        ),
       ),
     );
   }
-
-  Widget _fallbackImage() => Container(
-    width: 50,
-    height: 50,
-    color: Colors.white38,
-    child: const Icon(Icons.music_note, color: Colors.white),
-  );
-
-  Widget _loadingImage() => Container(
-    width: 50,
-    height: 50,
-    color: Colors.white12,
-    child: const Center(
-      child: SizedBox(
-        width: 16,
-        height: 16,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-        ),
-      ),
-    ),
-  );
 }

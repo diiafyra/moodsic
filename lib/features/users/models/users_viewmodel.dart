@@ -1,14 +1,17 @@
 import 'dart:async';
+import 'dart:developer' as developer; // Thêm để log debug
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:moodsic/core/services/firestore_service.dart';
+import 'package:moodsic/core/services/firestore/firestore_service.dart';
 import 'package:moodsic/core/utils/validators.dart';
 import 'package:moodsic/data/models/user.dart';
 import 'package:moodsic/data/repositories/user_repository.dart';
 import 'package:moodsic/domains/usecases/delete_user.dart';
 import 'package:moodsic/domains/usecases/fetch_all_users.dart';
+import 'package:moodsic/features/survey/widgets/artist_selection_widget.dart';
 import 'package:moodsic/routes/route_names.dart';
+import 'package:get_it/get_it.dart'; // Thêm để sử dụng GetIt
 
 class UsersViewModel {
   final TextEditingController _searchController = TextEditingController();
@@ -26,12 +29,13 @@ class UsersViewModel {
   bool _hasMore = true;
 
   UsersViewModel()
-    : _fetchAllUsers = FetchAllUsers(UserRepository(FirestoreService())),
-      _deleteUser = DeleteUser(UserRepository(FirestoreService())) {
+    : _fetchAllUsers = FetchAllUsers(UserRepository(getIt<FirestoreService>())),
+      _deleteUser = DeleteUser(UserRepository(getIt<FirestoreService>())) {
+    developer.log('UsersViewModel: Initialized', name: 'UsersViewModel');
     _searchController.addListener(() {
       updateSearchQuery(_searchController.text);
     });
-    print('UsersViewModel: Initialized');
+    _initializeUsersData(); // Khởi tạo dữ liệu khi view model được tạo
   }
 
   TextEditingController get searchController => _searchController;
@@ -40,16 +44,24 @@ class UsersViewModel {
   int get currentPage => _currentPage;
   bool get hasMore => _hasMore;
 
+  Future<void> _initializeUsersData() async {
+    await fetchUsers();
+  }
+
   Future<void> fetchUsers({
     bool isNext = false,
     bool isPrevious = false,
   }) async {
-    print(
+    developer.log(
       'UsersViewModel: Fetching users, page: $_currentPage, isNext: $isNext, isPrevious: $isPrevious',
+      name: 'UsersViewModel',
     );
     try {
       if (isPrevious && _currentPage > 1) {
-        print('UsersViewModel: Moving to previous page');
+        developer.log(
+          'UsersViewModel: Moving to previous page',
+          name: 'UsersViewModel',
+        );
         _currentPage--;
         _lastDocument = null;
         _allUsers.clear();
@@ -60,12 +72,16 @@ class UsersViewModel {
           );
           _allUsers.addAll(result['users'] as List<UserModel>);
           _lastDocument = result['lastDocument'] as DocumentSnapshot?;
-          print(
+          developer.log(
             'UsersViewModel: Loaded page $i, users: ${_allUsers.length}, lastDocument: $_lastDocument',
+            name: 'UsersViewModel',
           );
         }
       } else if (isNext && _hasMore) {
-        print('UsersViewModel: Moving to next page');
+        developer.log(
+          'UsersViewModel: Moving to next page',
+          name: 'UsersViewModel',
+        );
         _currentPage++;
       }
 
@@ -77,8 +93,9 @@ class UsersViewModel {
       _lastDocument = result['lastDocument'] as DocumentSnapshot?;
       _hasMore = newUsers.length == _pageSize;
 
-      print(
+      developer.log(
         'UsersViewModel: Fetched ${newUsers.length} users, hasMore: $_hasMore',
+        name: 'UsersViewModel',
       );
 
       if (!isPrevious) {
@@ -87,21 +104,31 @@ class UsersViewModel {
 
       _updateUsersStream();
     } catch (e, stackTrace) {
-      print('UsersViewModel: Error fetching users: $e');
-      print('Stack trace: $stackTrace');
+      developer.log(
+        'UsersViewModel: Error fetching users: $e',
+        name: 'UsersViewModel',
+        error: e,
+        stackTrace: stackTrace,
+      );
       _usersController.addError(e);
     }
   }
 
   void updateSearchQuery(String query) {
     _searchQuery = query;
-    print('UsersViewModel: Search query updated to $_searchQuery');
+    developer.log(
+      'UsersViewModel: Search query updated to $_searchQuery',
+      name: 'UsersViewModel',
+    );
     _updateUsersStream();
   }
 
   void updateProviderFilter(String provider) {
     _selectedProvider = provider;
-    print('UsersViewModel: Provider filter updated to $_selectedProvider');
+    developer.log(
+      'UsersViewModel: Provider filter updated to $_selectedProvider',
+      name: 'UsersViewModel',
+    );
     _updateUsersStream();
   }
 
@@ -117,17 +144,26 @@ class UsersViewModel {
               user.provider.toLowerCase() == _selectedProvider.toLowerCase();
           return matchesSearch && matchesProvider;
         }).toList();
-    print('UsersViewModel: Emitting ${filteredUsers.length} filtered users');
+    developer.log(
+      'UsersViewModel: Emitting ${filteredUsers.length} filtered users',
+      name: 'UsersViewModel',
+    );
     _usersController.add(filteredUsers);
   }
 
   void navigateToUserDetail(BuildContext context, String uid) {
-    print('UsersViewModel: Navigating to user detail for UID: $uid');
+    developer.log(
+      'UsersViewModel: Navigating to user detail for UID: $uid',
+      name: 'UsersViewModel',
+    );
     context.go(RouteNames.userDetail.replaceFirst(':uid', uid));
   }
 
   Future<void> deleteUser(BuildContext context, String uid) async {
-    print('UsersViewModel: Attempting to delete user $uid');
+    developer.log(
+      'UsersViewModel: Attempting to delete user $uid',
+      name: 'UsersViewModel',
+    );
     final confirmed = await showDialog<bool>(
       context: context,
       builder:
@@ -150,13 +186,20 @@ class UsersViewModel {
       try {
         await _deleteUser.execute(uid);
         _allUsers.removeWhere((user) => user.uid == uid);
-        print('UsersViewModel: User $uid deleted successfully');
+        developer.log(
+          'UsersViewModel: User $uid deleted successfully',
+          name: 'UsersViewModel',
+        );
         _updateUsersStream();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('User deleted successfully')),
         );
       } catch (e) {
-        print('UsersViewModel: Error deleting user: $e');
+        developer.log(
+          'UsersViewModel: Error deleting user: $e',
+          name: 'UsersViewModel',
+          error: e,
+        );
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error deleting user: $e')));
@@ -165,7 +208,7 @@ class UsersViewModel {
   }
 
   void dispose() {
-    print('UsersViewModel: Disposing');
+    developer.log('UsersViewModel: Disposing', name: 'UsersViewModel');
     _searchController.dispose();
     _usersController.close();
   }

@@ -21,6 +21,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
   late bool isLiked;
   late bool isPlaying;
   final ScrollController _scrollController = ScrollController();
+  bool _isScrolled = false;
 
   @override
   void initState() {
@@ -32,6 +33,14 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
     otherPlaylists = widget.playlists.where((p) => !p.playlist.isMain).toList();
     isLiked = mainPlaylist.isLiked;
     isPlaying = mainPlaylist.isPlaying;
+
+    // Listen to scroll để thay đổi style của back button
+    _scrollController.addListener(() {
+      final isScrolled = _scrollController.offset > 100;
+      if (_isScrolled != isScrolled) {
+        setState(() => _isScrolled = isScrolled);
+      }
+    });
   }
 
   void onToggleLike(bool newState) {
@@ -60,7 +69,13 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.oceanBlue800,
-      body: Stack(children: [_buildScrollView(), _buildStickyButtons()]),
+      body: Stack(
+        children: [
+          _buildScrollView(),
+          _buildStickyButtons(),
+          _buildBackButton(), // Thêm back button
+        ],
+      ),
     );
   }
 
@@ -78,7 +93,8 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
     return SliverAppBar(
       expandedHeight: 200,
       pinned: true,
-      backgroundColor: const Color.fromARGB(0, 228, 81, 81),
+      backgroundColor: Colors.transparent,
+      automaticallyImplyLeading: false, // Tắt back button mặc định
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
         title: Text(
@@ -103,16 +119,61 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
                   ),
             ),
             Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [AppColors.oceanBlue800, Colors.transparent],
+                  colors: [
+                    AppColors.oceanBlue800,
+                    AppColors.indigoNight900.withOpacity(0.6),
+                  ],
                   stops: [0.0, 0.7],
                 ),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBackButton() {
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 8,
+      left: 16,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          color:
+              _isScrolled
+                  ? Colors.black.withOpacity(0.7)
+                  : Colors.black.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(20),
+          border:
+              _isScrolled
+                  ? null
+                  : Border.all(color: Colors.white.withOpacity(0.3), width: 1),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () => Navigator.of(context).pop(),
+            child: Container(
+              width: 40,
+              height: 40,
+              alignment: Alignment.center,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  Icons.arrow_back_ios_new,
+                  key: ValueKey(_isScrolled),
+                  color: Colors.white,
+                  size: _isScrolled ? 20 : 18,
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );

@@ -26,22 +26,6 @@ class LoginController {
         context,
         MaterialPageRoute(builder: (_) => const ConnectSpotifyPage()),
       );
-      // // ✅ Điều hướng sang TransitionPage sau khi login
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(
-      //     builder:
-      //         (_) => TransitionPage(
-      //           loadingUI: const Text(
-      //             "Đang kiểm tra tài khoản...",
-      //             style: TextStyle(color: Colors.white),
-      //           ),
-      //           onLoad: (context) async {
-      //             await _authService.loadUserAndNavigate(context);
-      //           },
-      //         ),
-      //   ),
-      // );
     } catch (e) {
       ScaffoldMessenger.of(
         context,

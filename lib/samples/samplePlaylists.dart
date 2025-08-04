@@ -12,49 +12,49 @@
 //     isLiked: true,
 //     createdDate: DateTime(2025, 7, 29),
 //     //   tracks: [
-//     //     TrackDto(
+//     //     TrackViewmodel(
 //     //       id: 't1',
 //     //       title: 'Bài 1',
 //     //       url: 'https://via.placeholder.com/50',
 //     //       artists: ['Artist 1'],
 //     //     ),
-//     //     TrackDto(
+//     //     TrackViewmodel(
 //     //       id: 't2',
 //     //       title: 'Bài 2',
 //     //       url: 'https://via.placeholder.com/50',
 //     //       artists: ['Artist 2'],
 //     //     ),
-//     //     TrackDto(
+//     //     TrackViewmodel(
 //     //       id: 't3',
 //     //       title: 'Bài 3',
 //     //       url: 'https://via.placeholder.com/50',
 //     //       artists: ['Artist 3'],
 //     //     ),
-//     //     TrackDto(
+//     //     TrackViewmodel(
 //     //       id: 't4',
 //     //       title: 'Bài 2',
 //     //       url: 'https://via.placeholder.com/50',
 //     //       artists: ['Artist 2'],
 //     //     ),
-//     //     TrackDto(
+//     //     TrackViewmodel(
 //     //       id: 't5',
 //     //       title: 'Bài 2',
 //     //       url: 'https://via.placeholder.com/50',
 //     //       artists: ['Artist 2'],
 //     //     ),
-//     //     TrackDto(
+//     //     TrackViewmodel(
 //     //       id: 't6',
 //     //       title: 'Bài 2',
 //     //       url: 'https://via.placeholder.com/50',
 //     //       artists: ['Artist 2'],
 //     //     ),
-//     //     TrackDto(
+//     //     TrackViewmodel(
 //     //       id: 't7',
 //     //       title: 'Bài 2',
 //     //       url: 'https://via.placeholder.com/50',
 //     //       artists: ['Artist 2'],
 //     //     ),
-//     //     TrackDto(
+//     //     TrackViewmodel(
 //     //       id: 't8',
 //     //       title: 'Bài 2',
 //     //       url: 'https://via.placeholder.com/50',
@@ -89,10 +89,10 @@
 //   ),
 // ];
 import 'package:moodsic/data/models/playlist_model.dart';
-import 'package:moodsic/shared/widgets/track_dto.dart';
+import 'package:moodsic/shared/widgets/track_viewmodel.dart';
 
-final List<TrackDto> sampleTracks = [
-  TrackDto(
+final List<TrackViewmodel> sampleTracks = [
+  TrackViewmodel(
     id: 'sample_track_1',
     name: 'Sample Song 1',
     artist: 'Sample Artist A, Sample Artist B',
@@ -100,7 +100,7 @@ final List<TrackDto> sampleTracks = [
     imageUrl: 'https://via.placeholder.com/150',
     durationMs: 180000,
   ),
-  TrackDto(
+  TrackViewmodel(
     id: 'sample_track_2',
     name: 'Sample Song 2',
     artist: 'Sample Artist C',

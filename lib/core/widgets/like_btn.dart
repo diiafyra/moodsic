@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get_it/get_it.dart';
+import 'package:moodsic/data/models/playlist_model.dart';
+import 'package:moodsic/core/services/firestore/firestore_service.dart';
 
 class LikeButton extends StatefulWidget {
   final int size;
   final bool isLiked;
-  final String id;
+  final PlaylistModel model;
 
   const LikeButton({
     super.key,
-    required this.id,
+    required this.model,
     required this.size,
     required this.isLiked,
   });
@@ -18,24 +21,46 @@ class LikeButton extends StatefulWidget {
 }
 
 class _LikeButtonState extends State<LikeButton> {
-  late bool isLiked = widget.isLiked;
+  final _firestoreService = GetIt.I<FirestoreService>();
+
+  late bool isLiked;
 
   @override
   void initState() {
     super.initState();
-    isLiked = widget.isLiked; // Lấy trạng thái ban đầu từ widget
+    isLiked = widget.isLiked;
+  }
+
+  void _toggleLike() async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    setState(() => isLiked = !isLiked);
+
+    try {
+      if (isLiked) {
+        await _firestoreService.likePlaylist(widget.model);
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('Added to your liked playlists')),
+        );
+      } else {
+        await _firestoreService.unlikePlaylist(widget.model.id);
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('Removed from liked playlists')),
+        );
+      }
+    } catch (e) {
+      debugPrint('Failed to toggle like: $e');
+      setState(() => isLiked = !isLiked);
+      scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Something went wrong')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          isLiked = !isLiked;
-          print("Toggled isLiked: $isLiked");
-        });
-      },
-      child: Container(
+      onTap: _toggleLike,
+      child: SizedBox(
         width: widget.size.toDouble() + 4,
         height: widget.size.toDouble() + 4,
         child: Center(

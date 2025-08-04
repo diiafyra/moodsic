@@ -7,7 +7,7 @@ import 'shared/external_urls.dart';
 class Track {
   final Album album;
   //
-  final List<Artist> artists;
+  final String? artist;
   //
   final List<String> availableMarkets;
   //
@@ -36,7 +36,7 @@ class Track {
 
   Track({
     required this.album,
-    required this.artists,
+    this.artist,
     required this.availableMarkets,
     required this.discNumber,
     required this.durationMs,
@@ -58,14 +58,18 @@ class Track {
   });
 
   factory Track.fromJson(Map<String, dynamic> json) {
+    final artists = json['artists'] as List<dynamic>;
+    final album = json['album'];
+
     return Track(
-      album: Album.fromJson(json['album']),
-      artists: (json['artists'] as List)
-          .map((a) => Artist.fromJson(a))
-          .toList(),
+      album: album['name'] ?? 'Unknown Album',
+      artist:
+          artists.isNotEmpty
+              ? artists.map((a) => a['name'] ?? 'Unknown').join(', ')
+              : 'Unknown Artist',
       availableMarkets: List<String>.from(json['available_markets']),
       discNumber: json['disc_number'],
-      durationMs: json['duration_ms'],
+      durationMs: json['duration_ms'] ?? 0,
       explicit: json['explicit'],
       externalIds: ExternalIds.fromJson(json['external_ids']),
       externalUrls: ExternalUrls.fromJson(json['external_urls']),
@@ -73,10 +77,11 @@ class Track {
       id: json['id'],
       isPlayable: json['is_playable'],
       linkedFrom: json['linked_from'] ?? {},
-      restrictions: json['restrictions'] != null
-          ? Restrictions.fromJson(json['restrictions'])
-          : null,
-      name: json['name'],
+      restrictions:
+          json['restrictions'] != null
+              ? Restrictions.fromJson(json['restrictions'])
+              : null,
+      name: json['name'] ?? 'Unknown Title',
       popularity: json['popularity'],
       previewUrl: json['preview_url'],
       trackNumber: json['track_number'],

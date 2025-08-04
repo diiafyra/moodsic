@@ -4,9 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:moodsic/core/config/env.dart';
+import 'package:moodsic/data/models/artist/artist.dart';
 import 'package:moodsic/data/models/playlist_model.dart';
+import 'package:moodsic/data/models/track.dart';
 import 'package:moodsic/samples/samplePlaylists.dart';
-import 'package:moodsic/shared/widgets/track_dto.dart';
+import 'package:moodsic/shared/widgets/track_viewmodel.dart';
 
 class ApiService {
   /// Gợi ý playlist từ ảnh và mood
@@ -63,7 +65,7 @@ class ApiService {
     }
   }
 
-  static Future<List<TrackDto>> fetchTracksFromPlaylist({
+  static Future<List<TrackViewmodel>> fetchTracksFromPlaylist({
     required String playlistId,
     int limit = 100,
     int offset = 0,
@@ -93,7 +95,10 @@ class ApiService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final result = data['result'] as List<dynamic>;
-        return result.map((trackJson) => TrackDto.fromJson(trackJson)).toList();
+        debugPrint('result track: ${result}');
+        return result
+            .map((trackJson) => TrackViewmodel.fromJson(trackJson))
+            .toList();
       } else {
         debugPrint(
           '❌ FetchTracks failed: ${response.statusCode} - ${response.body}',
@@ -107,7 +112,7 @@ class ApiService {
   }
 
   // Hàm lấy toàn bộ tracks (nếu cần)
-  static Future<List<TrackDto>> fetchAllTracksFromPlaylist({
+  static Future<List<TrackViewmodel>> fetchAllTracksFromPlaylist({
     required String playlistId,
     int limit = 100,
   }) async {
@@ -118,7 +123,7 @@ class ApiService {
 
     int offset = 0;
     bool hasNext = true;
-    List<TrackDto> allTracks = [];
+    List<TrackViewmodel> allTracks = [];
 
     while (hasNext) {
       final response = await http.post(
@@ -140,7 +145,7 @@ class ApiService {
       final data = json.decode(response.body);
       final tracks =
           (data['result'] as List<dynamic>)
-              .map((trackJson) => TrackDto.fromJson(trackJson))
+              .map((trackJson) => TrackViewmodel.fromJson(trackJson))
               .toList();
       allTracks.addAll(tracks);
       hasNext = data['next'] != null;
@@ -148,5 +153,56 @@ class ApiService {
     }
 
     return allTracks;
+  }
+
+  static Future<List<Artist>> searchArtists(String keyword) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    try {
+      final response = await http.post(
+        Uri.parse('${Env.baseUrl}/spotify/search-artists'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'keyword': keyword, 'uid': uid}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List<dynamic> artistsJson = data['artists'] ?? [];
+        debugPrint('result artist: ${artistsJson}');
+        return artistsJson.map((json) => Artist.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to search artists: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error searching artists: $e');
+    }
+  }
+
+  static Future<List<TrackViewmodel>> searchTracks(String keyword) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    try {
+      final response = await http.post(
+        Uri.parse('${Env.baseUrl}/spotify/search-tracks'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'keyword': keyword, 'uid': uid}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List<dynamic> tracksJson = data['tracks'] ?? [];
+        debugPrint('result track: ${tracksJson}');
+        final trackList =
+            tracksJson.map((json) => TrackViewmodel.fromJson(json)).toList();
+
+        debugPrint(
+          'result track map: ${trackList.map((t) => t.toString()).join('\n')}',
+        );
+
+        return trackList;
+      } else {
+        throw Exception('Failed to search tracks: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error searching tracks: $e');
+    }
   }
 }

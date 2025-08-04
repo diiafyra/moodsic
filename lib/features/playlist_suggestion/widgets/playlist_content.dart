@@ -101,7 +101,11 @@ class _PlaylistContentState extends State<PlaylistContent> {
           isPlaying: playlist.isPlaying,
         ),
         const SizedBox(width: 12),
-        LikeButton(id: playlist.id, size: 32, isLiked: playlist.isLiked),
+        LikeButton(
+          model: playlist.playlist,
+          size: 32,
+          isLiked: playlist.isLiked,
+        ),
         const SizedBox(width: 6),
         AddButton(
           onPressed: () => print('Thêm bài hát vào playlist'),
@@ -126,7 +130,7 @@ class _PlaylistContentState extends State<PlaylistContent> {
               id: track.id,
               title: track.name,
               url: track.imageUrl,
-              artists: [track.artist ?? 'Unknown Artist'],
+              artists: track.artist ?? 'Unknown Artist',
             );
           },
         ),
@@ -163,16 +167,7 @@ class _PlaylistContentState extends State<PlaylistContent> {
         ),
         itemBuilder: (context, index) {
           final playlist = playlists[index];
-          return PlaylistCard(
-            id: playlist.id,
-            imageUrl: playlist.imageUrl,
-            description: playlist.description,
-            name: playlist.name,
-            artists: playlist.artists,
-            isPlaying: playlist.isPlaying,
-            isLiked: playlist.isLiked,
-            createdDate: playlist.playlist.createdDate,
-          );
+          return PlaylistCard(model: playlist);
         },
       ),
     );

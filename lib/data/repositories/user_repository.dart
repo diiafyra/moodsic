@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:moodsic/core/services/firestore_service.dart';
+import 'package:moodsic/core/services/firestore/firestore_service.dart';
 import 'package:moodsic/data/models/user.dart';
 
 class UserRepository {

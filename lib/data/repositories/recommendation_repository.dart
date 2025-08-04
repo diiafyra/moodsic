@@ -1,4 +1,4 @@
-import 'package:moodsic/core/services/firestore_service.dart';
+import 'package:moodsic/core/services/firestore/firestore_service.dart';
 
 class RecommendationRepository {
   final FirestoreService _firestoreService;

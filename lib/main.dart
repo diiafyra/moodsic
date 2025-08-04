@@ -2,8 +2,10 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:moodsic/core/config/dependencies.dart';
 import 'package:moodsic/core/services/notification_service.dart';
 import 'package:moodsic/routes/app_routes.dart';
+import 'package:moodsic/shared/states/survey_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:moodsic/shared/states/auth_provider.dart';
 
@@ -13,7 +15,7 @@ Future<void> main() async {
   await NotificationService.initLocalNotification();
   NotificationService.setupOnMessageListener();
   NotificationService.setupOnMessageOpenedAppListener();
-
+  setupDependencies();
   // 🔐 Kích hoạt App Check
   try {
     await FirebaseAppCheck.instance.activate(
@@ -76,8 +78,11 @@ class MyApp extends StatelessWidget {
           );
         }
 
-        return ChangeNotifierProvider.value(
-          value: CAuthProvider.instance,
+        return MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: CAuthProvider.instance),
+            ChangeNotifierProvider(create: (_) => SurveyProvider()),
+          ],
           child: MaterialApp.router(
             debugShowCheckedModeBanner: false,
             routerConfig: appRouter,
