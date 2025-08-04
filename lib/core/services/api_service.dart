@@ -262,6 +262,19 @@ class ApiService {
       print("⚠️ Không tìm thấy access_token");
       return;
     }
+    
+    // Tắt chế độ shuffle
+    final shuffleUrl = 'https://api.spotify.com/v1/me/player/shuffle?state=false&device_id=$deviceId';
+    final shuffleResponse = await http.put(
+      Uri.parse(shuffleUrl),
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+
+    if (shuffleResponse.statusCode != 204) {
+      print('❌ Lỗi tắt shuffle: ${shuffleResponse.body}');
+    } else {
+      print('✅ Đã tắt shuffle');
+    }
 
     final url = 'https://api.spotify.com/v1/me/player/play?device_id=$deviceId';
 
