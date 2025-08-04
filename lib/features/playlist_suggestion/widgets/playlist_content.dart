@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:moodsic/core/widgets/add_btn.dart';
 import 'package:moodsic/core/widgets/like_btn.dart';
 import 'package:moodsic/core/widgets/play_pause_btn.dart';
+import 'package:moodsic/features/playlist_suggestion/controller/play_controller.dart';
 import 'package:moodsic/features/playlist_suggestion/viewmodel/playlist_viewmodel.dart';
 import 'package:moodsic/shared/widgets/track_card.dart';
 import '../../../core/widgets/search_bar.dart';
@@ -19,6 +20,7 @@ class PlaylistContent extends StatefulWidget {
 class _PlaylistContentState extends State<PlaylistContent> {
   late final PlaylistViewModel mainPlaylist;
   late final List<PlaylistViewModel> otherPlaylists;
+  final PlayController _playController = PlayController();
 
   int _visibleTrackCount = 20;
 
@@ -98,7 +100,6 @@ class _PlaylistContentState extends State<PlaylistContent> {
         PlayPauseButton(
           id: playlist.id,
           size: 32,
-          isPlaying: playlist.isPlaying,
         ),
         const SizedBox(width: 12),
         LikeButton(

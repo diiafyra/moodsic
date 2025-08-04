@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:http/http.dart' as http;
+import 'package:moodsic/core/services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SpotifyAuth {
   static const _clientId = '17cc8dffd25c4b5996e0a047c8c12f07';
   static const _clientSecret = 'c4e8e714cce74646a70f6e3bdc48fd60';
   static const _redirectUri = 'moodsic://callback';
-  static const _scopes = 'user-read-private user-read-email user-top-read';
+  static const _scopes = 'user-read-private user-read-email user-top-read user-read-playback-state user-modify-playback-state streaming app-remote-control';
 
   Future<Map<String, dynamic>?> authenticate() async {
     print('SPOTIFYYYYY');
@@ -49,6 +51,12 @@ class SpotifyAuth {
 
       if (accessToken == null || refreshToken == null) return null;
 
+      // Lưu vào sharereference 
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString('access_token', accessToken);
+      print('Access token saved to shared preferences');
+      print('access_token: ${prefs.getString('access_token')}');
+      
       return {
         'accessToken': accessToken,
         'refreshToken': refreshToken,

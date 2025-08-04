@@ -6,6 +6,7 @@ import 'package:moodsic/core/widgets/custom_network_image.dart';
 import 'package:moodsic/core/widgets/like_btn.dart';
 import 'package:moodsic/core/widgets/play_pause_btn.dart';
 import 'package:moodsic/features/playlist_detail_page/pages/playlist_detail.dart';
+import 'package:moodsic/features/playlist_suggestion/controller/play_controller.dart';
 import 'package:moodsic/features/playlist_suggestion/viewmodel/playlist_viewmodel.dart';
 
 class PlaylistCard extends StatefulWidget {
@@ -62,6 +63,7 @@ class _PlaylistCardState extends State<PlaylistCard> {
     final formattedDate = DateFormat(
       'dd/MM/yyyy',
     ).format(playlist.createdDate ?? DateTime.now());
+    final PlayController _playController = PlayController();
 
     return GestureDetector(
       onTap: _navigateToDetail, // Thêm onTap để navigate
@@ -197,7 +199,6 @@ class _PlaylistCardState extends State<PlaylistCard> {
                   child: PlayPauseButton(
                     size: 24,
                     id: model.id,
-                    isPlaying: isPlaying,
                   ),
                 ),
               ),

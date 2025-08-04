@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:moodsic/core/services/api_service.dart';
 import 'package:moodsic/data/models/playlist_model.dart';
 import 'package:moodsic/shared/widgets/track_viewmodel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PlaylistViewModel {
   PlaylistModel playlist;
@@ -30,6 +31,11 @@ class PlaylistViewModel {
   bool get isPlaying => _isPlaying;
 
   Future<void> fetchTracks({bool reset = false}) async {
+    print('🔄 Fetching tracks for playlist: $name (ID: $id)');
+    // Lưu id vào shared preferences
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('id_newTracks', id);
+
     if (isLoading || !hasMoreTracks) {
       debugPrint('⏳ Đang tải hoặc không còn track nào để tải.');
       return;
@@ -68,4 +74,5 @@ class PlaylistViewModel {
       debugPrint('🏁 Kết thúc fetchTracks');
     }
   }
+
 }
