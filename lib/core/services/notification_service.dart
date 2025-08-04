@@ -19,7 +19,8 @@ class NotificationService {
       settings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
         if (response.payload != null) {
-          print('[Notification Clicked] Payload: ${response.payload}');
+          print('[Notification Clicked] Payload: ${response.payload}'); //ai chuan
+          
           // TODO: Điều hướng đến trang cụ thể nếu cần
         }
       },
