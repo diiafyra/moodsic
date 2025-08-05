@@ -7,6 +7,7 @@ import 'package:moodsic/features/main_navigation/nav_bar_admin.dart';
 import 'package:moodsic/features/main_navigation/nav_bar_user.dart';
 import 'package:moodsic/features/survey/pages/connect_spotify_page.dart';
 import 'package:moodsic/features/survey/pages/genre_selection_page.dart';
+import 'package:moodsic/features/users/pages/user_detail_page.dart';
 import 'package:moodsic/routes/route_names.dart';
 import 'package:moodsic/shared/states/auth_provider.dart';
 
@@ -72,6 +73,13 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: RouteNames.genreSelection,
       builder: (_, __) => const GenreSelectionPage(),
+    ),
+    GoRoute(
+      path: RouteNames.userDetail,
+      builder: (context, state) {
+        final uid = state.pathParameters['uid']!;
+        return UserDetailPage(uid: uid);
+      },
     ),
   ],
 );

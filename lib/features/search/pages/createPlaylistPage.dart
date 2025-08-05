@@ -109,7 +109,9 @@ class _CreatePlaylistPageState extends State<CreatePlaylistPage> {
 
   Future<void> _createPlaylist(String playlistName) async {
     try {
-      final success = await ApiService.createPlaylistWithTracks(
+      final apiService = getIt<ApiService>();
+
+      final success = await apiService.createPlaylistWithTracks(
         name: playlistName,
         tracks: selectedTracks,
       );

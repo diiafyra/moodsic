@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:moodsic/core/config/dependencies.dart';
 import 'package:moodsic/core/services/api_service.dart';
 import 'package:moodsic/data/models/playlist_model.dart';
 
@@ -11,7 +12,9 @@ class PlaylistRepository {
     required double arousal,
     required String uid,
   }) async {
-    return await ApiService.recommendPlaylists(
+    final apiService = getIt<ApiService>();
+
+    return await apiService.recommendPlaylists(
       canvasImage: canvasImage,
       moodText: moodText,
       valence: valence,

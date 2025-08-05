@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moodsic/core/config/theme/app_colors.dart';
 import 'package:moodsic/features/home/pages/admin_home_page.dart';
+import 'package:moodsic/features/recommendation_analytics_page/pages/recommendation_analytics_pages.dart';
 import 'package:moodsic/features/send_noti/pages/send_notification_page.dart';
 import 'package:moodsic/features/users/pages/users.dart';
 import 'package:moodsic/samples/samplePlaylists.dart';
@@ -22,7 +23,7 @@ class _AdminNavigationPageState extends State<AdminNavigationPage> {
   final List<Widget> _pages = [
     AdminHomePage(),
     UsersPage(),
-    UsersPage(),
+    RecommendationStatsScreen(),
     // PlaylistDetail(playlists: samplePlaylists),
     SendNotificationPage(),
     //?

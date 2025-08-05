@@ -13,6 +13,7 @@ class SignOutButton extends StatelessWidget {
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.brickRed500,
+          foregroundColor: AppColors.primary50,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -22,11 +23,7 @@ class SignOutButton extends StatelessWidget {
         icon: const Icon(Icons.logout, size: 20),
         label: const Text(
           'Đăng xuất',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: AppColors.primary50,
-          ),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         onPressed: () async {
           final shouldSignOut = await showDialog<bool>(
@@ -53,6 +50,7 @@ class SignOutButton extends StatelessWidget {
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.brickRed500,
+                        foregroundColor: AppColors.primary50,
                       ),
                       onPressed: () => Navigator.of(context).pop(true),
                       child: const Text('Đăng xuất'),

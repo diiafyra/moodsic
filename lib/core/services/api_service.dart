@@ -9,10 +9,11 @@ import 'package:moodsic/data/models/playlist_model.dart';
 import 'package:moodsic/data/models/track.dart';
 import 'package:moodsic/samples/samplePlaylists.dart';
 import 'package:moodsic/shared/widgets/track_viewmodel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   /// Gợi ý playlist từ ảnh và mood
-  static Future<List<PlaylistModel>> recommendPlaylists({
+  Future<List<PlaylistModel>> recommendPlaylists({
     required File canvasImage,
     required String moodText,
     required double valence,
@@ -65,7 +66,7 @@ class ApiService {
     }
   }
 
-  static Future<List<TrackViewmodel>> fetchTracksFromPlaylist({
+  Future<List<TrackViewmodel>> fetchTracksFromPlaylist({
     required String playlistId,
     int limit = 100,
     int offset = 0,
@@ -97,7 +98,7 @@ class ApiService {
         final result = data['result'] as List<dynamic>;
         debugPrint('result track: ${result}');
         return result
-            .map((trackJson) => TrackViewmodel.fromJson(trackJson))
+            .map((trackJson) => TrackViewmodel.fromJsonApi(trackJson))
             .toList();
       } else {
         debugPrint(
@@ -112,7 +113,7 @@ class ApiService {
   }
 
   // Hàm lấy toàn bộ tracks (nếu cần)
-  static Future<List<TrackViewmodel>> fetchAllTracksFromPlaylist({
+  Future<List<TrackViewmodel>> fetchAllTracksFromPlaylist({
     required String playlistId,
     int limit = 100,
   }) async {
@@ -145,7 +146,7 @@ class ApiService {
       final data = json.decode(response.body);
       final tracks =
           (data['result'] as List<dynamic>)
-              .map((trackJson) => TrackViewmodel.fromJson(trackJson))
+              .map((trackJson) => TrackViewmodel.fromJsonApi(trackJson))
               .toList();
       allTracks.addAll(tracks);
       hasNext = data['next'] != null;
@@ -155,7 +156,7 @@ class ApiService {
     return allTracks;
   }
 
-  static Future<List<Artist>> searchArtists(String keyword) async {
+  Future<List<Artist>> searchArtists(String keyword) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     try {
       final response = await http.post(
@@ -177,7 +178,7 @@ class ApiService {
     }
   }
 
-  static Future<List<TrackViewmodel>> searchTracks(String keyword) async {
+  Future<List<TrackViewmodel>> searchTracks(String keyword) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     try {
       final response = await http.post(
@@ -191,7 +192,7 @@ class ApiService {
         final List<dynamic> tracksJson = data['tracks'] ?? [];
         debugPrint('result track: ${tracksJson}');
         final trackList =
-            tracksJson.map((json) => TrackViewmodel.fromJson(json)).toList();
+            tracksJson.map((json) => TrackViewmodel.fromJsonApi(json)).toList();
 
         debugPrint(
           'result track map: ${trackList.map((t) => t.toString()).join('\n')}',
@@ -206,7 +207,7 @@ class ApiService {
     }
   }
 
-  static Future<bool> createPlaylistWithTracks({
+  Future<bool> createPlaylistWithTracks({
     required String name,
     required List<TrackViewmodel> tracks,
   }) async {
@@ -247,4 +248,267 @@ class ApiService {
       return false;
     }
   }
+
+  // Lấy deviceid đang hoạt động va lưu vào shared preferences
+  //  Future<String?> getActiveDeviceId() async {
+  //   print("getActiveDeviceId()");
+  //   // Lấy access_token từ firestore
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final accessToken = prefs.getString('access_token');
+  //   if (accessToken == null) {
+  //     throw Exception('Access token không tồn tại');
+  //   }
+
+  //   final response = await http.get(
+  //     Uri.parse('https://api.spotify.com/v1/me/player/devices'),
+  //     headers: {'Authorization': 'Bearer $accessToken'},
+  //   );
+
+  //   if (response.statusCode == 200) {
+  //     print("getActiveDeviceId()>200");
+  //     final json = jsonDecode(response.body);
+  //     final devices = json['devices'] as List;
+  //     print("devices");
+
+  //     // Chọn thiết bị đang hoạt động nếu có
+  //     final activeDevice = devices.firstWhere(
+  //       (d) => d['is_active'] == true,
+  //       orElse: () => devices.isNotEmpty ? devices.first : null,
+  //     );
+
+  //     print("device_id");
+  //     prefs.setString('device_id', activeDevice['id']);
+  //     print(prefs.getString('device_id'));
+
+  //     return activeDevice?['id'];
+  //   } else {
+  //     print('Lỗi lấy device list: ${response.body}');
+  //     return null;
+  //   }
+  // }
+
+  Future<Map<String, String>?> getActiveDeviceIdAndToken() async {
+    print("▶️ getActiveDeviceIdAndToken()");
+
+    // Bước 1: Lấy access token từ endpoint của bạn
+    final token = await fetchSpotifyToken();
+    if (token == null) {
+      print('❌ Không lấy được access token');
+      return null;
+    }
+
+    // Bước 2: Gọi Spotify API để lấy danh sách thiết bị
+    final response = await http.get(
+      Uri.parse('https://api.spotify.com/v1/me/player/devices'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      print("✅ Spotify device list fetched");
+
+      final json = jsonDecode(response.body);
+      final devices = json['devices'] as List;
+
+      if (devices.isEmpty) {
+        print("⚠️ Không có thiết bị Spotify nào đang hoạt động");
+        return null;
+      }
+
+      // Ưu tiên thiết bị đang active, fallback sang thiết bị đầu tiên
+      final activeDevice = devices.firstWhere(
+        (d) => d['is_active'] == true,
+        orElse: () => devices.first,
+      );
+
+      final deviceId = activeDevice['id'];
+      print("🎧 Active Device ID: $deviceId");
+
+      return {'token': token, 'device_id': deviceId};
+    } else {
+      print(
+        '❌ Lỗi khi lấy thiết bị: ${response.statusCode} - ${response.body}',
+      );
+      return null;
+    }
+  }
+
+  Future<String?> fetchSpotifyToken() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      throw Exception('Chưa đăng nhập ');
+    }
+
+    final url = Uri.parse('${Env.baseUrl}/test/spotify-token/$uid');
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final token = data['token'] as String?;
+        if (token != null) {
+          print("✅ Token: $token");
+          return token;
+        } else {
+          print("⚠️ Không tìm thấy trường 'token' trong response.");
+          return null;
+        }
+      } else {
+        print("❌ Request thất bại. Status code: ${response.statusCode}");
+        print("Response body: ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      print("❗ Lỗi khi gọi API: $e");
+      return null;
+    }
+  }
+
+  // Hàm phát playlist
+  //  Future<void> playPlaylist(String playlistId) async {
+  //   print('playPlaylist()');
+  //   final prefs = await SharedPreferences.getInstance();
+  //   String deviceId = prefs.getString('device_id') ?? '';
+  //   if (deviceId.isEmpty) {
+  //     print("⚠️ Không tìm thấy device_id");
+  //     return;
+  //   }
+  //   print('playlistId: $playlistId');
+  //   print('deviceId: $deviceId');
+
+  //   final accessToken = prefs.getString('access_token');
+  //   if (accessToken == null) {
+  //     print("⚠️ Không tìm thấy access_token");
+  //     return;
+  //   }
+
+  //   // Tắt chế độ shuffle
+  //   final shuffleUrl =
+  //       'https://api.spotify.com/v1/me/player/shuffle?state=false&device_id=$deviceId';
+  //   final shuffleResponse = await http.put(
+  //     Uri.parse(shuffleUrl),
+  //     headers: {'Authorization': 'Bearer $accessToken'},
+  //   );
+
+  //   if (shuffleResponse.statusCode != 204) {
+  //     print('❌ Lỗi tắt shuffle: ${shuffleResponse.body}');
+  //   } else {
+  //     print('✅ Đã tắt shuffle');
+  //   }
+
+  //   final url = 'https://api.spotify.com/v1/me/player/play?device_id=$deviceId';
+
+  //   final response = await http.put(
+  //     Uri.parse(url),
+  //     headers: {
+  //       'Authorization': 'Bearer ${accessToken}',
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: jsonEncode({"context_uri": "spotify:playlist:$playlistId"}),
+  //   );
+
+  //   if (response.statusCode != 204) {
+  //     print('❌ Lỗi phát playlist: ${response.body}');
+  //   }
+  // }
+
+  Future<void> playPlaylist(String playlistId) async {
+    print('playlist id: ${playlistId}');
+    final result = await getActiveDeviceIdAndToken();
+    final accessToken = result?['token'];
+    final deviceId = result?['device_id'];
+    if (deviceId == null) {
+      print("⚠️ Không tìm thấy device_id");
+      return;
+    }
+
+    if (accessToken == null) {
+      print("⚠️ Không tìm thấy access_token");
+      return;
+    }
+    await http.put(
+      Uri.parse(
+        'https://api.spotify.com/v1/me/player/play?device_id=$deviceId',
+      ),
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'uris': ['spotify:track:3n3Ppam7vgaVa1iaRUc9Lp'],
+      }),
+    );
+    // Tắt chế độ shuffle
+    final shuffleUrl =
+        'https://api.spotify.com/v1/me/player/shuffle?state=false&device_id=$deviceId';
+    final shuffleResponse = await http.put(
+      Uri.parse(shuffleUrl),
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+
+    if (shuffleResponse.statusCode != 204) {
+      print('❌ Lỗi tắt shuffle: ${shuffleResponse.body}');
+    } else {
+      print('✅ Đã tắt shuffle');
+    }
+
+    final url = 'https://api.spotify.com/v1/me/player/play?device_id=$deviceId';
+
+    final response = await http.put(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer ${accessToken}',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({"context_uri": "spotify:playlist:$playlistId"}),
+    );
+
+    if (response.statusCode != 204) {
+      print('❌ Lỗi phát playlist: ${response.body}');
+    }
+  }
+
+  // Hàm tạm dừng phát nhạc
+  Future<void> pausePlayback() async {
+    final result = await getActiveDeviceIdAndToken();
+    final accessToken = result?['token'];
+    final deviceId = result?['device_id'];
+    if (deviceId == null) {
+      print("⚠️ Không tìm thấy device_id");
+      return;
+    }
+
+    if (accessToken == null) {
+      print("⚠️ Không tìm thấy access_token");
+      return;
+    }
+    final url = 'https://api.spotify.com/v1/me/player/pause';
+    final response = await http.put(
+      Uri.parse(url),
+      headers: {'Authorization': 'Bearer ${accessToken}'},
+    );
+
+    if (response.statusCode != 204) {
+      print('❌ Lỗi dừng nhạc: ${response.body}');
+    }
+  }
+
+  //  Future<void> pausePlayback() async {
+  //   print('pausePlayback()');
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final accessToken = prefs.getString('access_token');
+  //   if (accessToken == null) {
+  //     print("⚠️ Không tìm thấy access_token");
+  //     return;
+  //   }
+  //   final url = 'https://api.spotify.com/v1/me/player/pause';
+  //   final response = await http.put(
+  //     Uri.parse(url),
+  //     headers: {'Authorization': 'Bearer ${accessToken}'},
+  //   );
+
+  //   if (response.statusCode != 204) {
+  //     print('❌ Lỗi dừng nhạc: ${response.body}');
+  //   }
+  // }
 }

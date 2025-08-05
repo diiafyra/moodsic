@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moodsic/core/config/theme/app_colors.dart';
-import 'package:moodsic/core/services/clip_path.dart';
+import 'package:moodsic/core/utils/clip_path.dart';
 import 'circle_background_painter.dart';
 
 class MoodButtonsWidget extends StatelessWidget {

@@ -119,7 +119,6 @@ class _SendNotificationPageState extends State<SendNotificationPage> {
               maxLines: 3,
             ),
             const SizedBox(height: 20),
-            // Nút gửi
             ElevatedButton(
               onPressed:
                   _messageController.text.isNotEmpty &&

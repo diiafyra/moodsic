@@ -17,62 +17,72 @@ class UserModel {
     this.updatedAt,
   });
 
+  /// ✅ Parse từ Firestore (map + uid riêng)
   factory UserModel.fromMap(Map<String, dynamic> data, String uid) {
-    print('UserModel: Parsing user $uid, data: $data');
-
-    // Handle createdAt: convert String to Timestamp if necessary
-    Timestamp createdAt;
-    if (data['createdAt'] is Timestamp) {
-      createdAt = data['createdAt'] as Timestamp;
-    } else if (data['createdAt'] is String) {
-      print(
-        'UserModel: Converting createdAt string "${data['createdAt']}" to Timestamp',
-      );
-      try {
-        createdAt = Timestamp.fromDate(DateTime.parse(data['createdAt']));
-      } catch (e) {
-        print('UserModel: Error parsing createdAt string: $e');
-        createdAt = Timestamp.now();
-      }
-    } else {
-      print('UserModel: createdAt is null or invalid, using default');
-      createdAt = Timestamp.now();
-    }
-
-    // Handle updatedAt: allow null or convert String to Timestamp
-    Timestamp? updatedAt;
-    if (data['updatedAt'] is Timestamp) {
-      updatedAt = data['updatedAt'] as Timestamp;
-    } else if (data['updatedAt'] is String) {
-      print(
-        'UserModel: Converting updatedAt string "${data['updatedAt']}" to Timestamp',
-      );
-      try {
-        updatedAt = Timestamp.fromDate(DateTime.parse(data['updatedAt']));
-      } catch (e) {
-        print('UserModel: Error parsing updatedAt string: $e');
-        updatedAt = null;
-      }
-    }
-
     return UserModel(
       uid: uid,
       email: data['email'] ?? 'No email',
       displayName: data['displayName'] ?? 'Unknown',
       provider: data['provider'] ?? 'Unknown',
-      createdAt: createdAt,
-      updatedAt: updatedAt,
+      createdAt: _parseTimestamp(data['createdAt']),
+      updatedAt: _tryParseNullableTimestamp(data['updatedAt']),
     );
   }
 
-  Map<String, dynamic> toMap() {
+  /// ✅ Parse từ JSON (đã có uid trong map)
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      uid: json['uid'] ?? '',
+      email: json['email'] ?? 'No email',
+      displayName: json['displayName'] ?? 'Unknown',
+      provider: json['provider'] ?? 'Unknown',
+      createdAt: _parseTimestamp(json['createdAt']),
+      updatedAt: _tryParseNullableTimestamp(json['updatedAt']),
+    );
+  }
+
+  /// ✅ Convert sang JSON thuần
+  Map<String, dynamic> toJson() {
     return {
       'uid': uid,
+      'email': email,
+      'displayName': displayName,
+      'provider': provider,
+      'createdAt': createdAt.toDate().toIso8601String(),
+      'updatedAt': updatedAt?.toDate().toIso8601String(),
+    };
+  }
+
+  /// ✅ Convert sang Firestore map
+  Map<String, dynamic> toMap() {
+    return {
       'email': email,
       'displayName': displayName,
       'provider': provider,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };
+  }
+
+  /// Helper - parse createdAt (Timestamp hoặc ISO String)
+  static Timestamp _parseTimestamp(dynamic value) {
+    if (value is Timestamp) return value;
+    if (value is String) {
+      try {
+        return Timestamp.fromDate(DateTime.parse(value));
+      } catch (_) {}
+    }
+    return Timestamp.now(); // fallback
+  }
+
+  /// Helper - parse updatedAt (nullable)
+  static Timestamp? _tryParseNullableTimestamp(dynamic value) {
+    if (value is Timestamp) return value;
+    if (value is String) {
+      try {
+        return Timestamp.fromDate(DateTime.parse(value));
+      } catch (_) {}
+    }
+    return null;
   }
 }

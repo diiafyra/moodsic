@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:moodsic/core/services/api_service.dart';
 import 'package:moodsic/core/services/firestore/firestore_service.dart';
 import 'package:moodsic/domains/usecases/search_artists.dart';
 import 'package:moodsic/domains/usecases/search_track.dart';
@@ -16,6 +17,8 @@ Future<void> setupDependencies() async {
   getIt.registerLazySingleton<FirestoreService>(
     () => FirestoreService(FirebaseFirestore.instance, FirebaseAuth.instance),
   );
+
+  getIt.registerLazySingleton<ApiService>(() => ApiService());
 
   // Đăng ký các use case
   getIt.registerSingleton<SearchArtists>(SearchArtists());

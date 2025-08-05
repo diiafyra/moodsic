@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:moodsic/data/models/music_profle.dart';
 import 'package:moodsic/data/models/playlist_model.dart';
+import 'package:moodsic/features/recommendation_analytics_page/Models/recommendation_log_firetore.dart';
 import 'package:moodsic/features/recommendation_logs/models/recommendation_log.dart';
 
 class FirestoreService {
@@ -308,10 +309,15 @@ class FirestoreService {
 
   Stream<List<RecommendationLog>> getUserRecommendationLogs() {
     final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      return const Stream.empty();
+    }
+
+    final safeUid = uid.replaceAll(RegExp(r'[:\/]'), '_');
 
     return _firestore
         .collection('recommendation_logs')
-        .doc(uid)
+        .doc(safeUid)
         .collection('logs')
         .orderBy('timestamp', descending: true)
         .snapshots()
@@ -327,9 +333,11 @@ class FirestoreService {
     DocumentSnapshot? lastDocument,
     int limit = 20,
   }) async {
+    final safeUid = uid.replaceAll(RegExp(r'[:\/]'), '_');
+
     Query query = _firestore
         .collection('recommendation_logs')
-        .doc(uid)
+        .doc(safeUid)
         .collection('logs')
         .orderBy('timestamp', descending: true)
         .limit(limit);
@@ -342,5 +350,222 @@ class FirestoreService {
     return snapshot.docs
         .map((doc) => RecommendationLog.fromFirestore(doc))
         .toList();
+  }
+
+  void debugRecommendationLogs() async {
+    final startDate = DateTime.now().subtract(const Duration(days: 7));
+    final endDate = DateTime.now();
+
+    try {
+      final logs = await getUserRecommendationLogFirestoresByTimeRange(
+        startDate: startDate,
+        endDate: endDate,
+      );
+
+      debugPrint('📋 [Logs trong khoảng thời gian]');
+      for (var log in logs) {
+        debugPrint(
+          log.toString(),
+        ); // Giả sử bạn đã override toString() trong model
+      }
+    } catch (e, stack) {
+      debugPrint('❌ Lỗi khi lấy logs: $e');
+      debugPrint('🧱 Stack: $stack');
+    }
+  }
+
+  void debugRecommendationStats() async {
+    final startDate = DateTime.now().subtract(const Duration(days: 7));
+    final endDate = DateTime.now();
+
+    try {
+      final stats = await getRecommendationLogFirestoreStats(
+        startDate: startDate,
+        endDate: endDate,
+      );
+
+      debugPrint('📊 [Thống kê recommendation]');
+      stats.forEach((key, value) {
+        debugPrint('$key: $value');
+      });
+    } catch (e, stack) {
+      debugPrint('❌ Lỗi khi tính stats: $e');
+      debugPrint('🧱 Stack: $stack');
+    }
+  }
+
+  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>>
+  getAllRecommendationLogFirestoresByTimeRange({
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    final startTimestamp = Timestamp.fromDate(startDate);
+    final endTimestamp = Timestamp.fromDate(endDate);
+
+    // Use collectionGroup to query all 'logs' subcollections from all users
+    final querySnapshot =
+        await _firestore
+            .collectionGroup('logs')
+            .where('timestamp', isGreaterThanOrEqualTo: startTimestamp)
+            .where('timestamp', isLessThanOrEqualTo: endTimestamp)
+            .orderBy('timestamp', descending: true)
+            .get();
+
+    return querySnapshot.docs;
+  }
+
+  Future<List<RecommendationLogFirestore>>
+  getUserRecommendationLogFirestoresByTimeRange({
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    final querySnapshot =
+        await _firestore
+            .collectionGroup('logs') // Lấy từ tất cả users
+            .where(
+              'timestamp',
+              isGreaterThanOrEqualTo: Timestamp.fromDate(startDate),
+            )
+            .where(
+              'timestamp',
+              isLessThanOrEqualTo: Timestamp.fromDate(endDate),
+            )
+            .orderBy('timestamp', descending: true)
+            .get();
+
+    return querySnapshot.docs
+        .map((doc) => RecommendationLogFirestore.fromFirestore(doc))
+        .toList();
+  }
+
+  Future<List<RecommendationLogFirestore>>
+  getAllUserRecommendationLogsByTimeRange({
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    final List<RecommendationLogFirestore> allLogs = [];
+
+    // Lấy danh sách tất cả các UID trong collection 'recommendation_logs'
+    final userDocs = await _firestore.collection('recommendation_logs').get();
+
+    for (final userDoc in userDocs.docs) {
+      final logsSnapshot =
+          await _firestore
+              .collection('recommendation_logs')
+              .doc(userDoc.id)
+              .collection('logs')
+              .where(
+                'timestamp',
+                isGreaterThanOrEqualTo: Timestamp.fromDate(startDate),
+              )
+              .where(
+                'timestamp',
+                isLessThanOrEqualTo: Timestamp.fromDate(endDate),
+              )
+              .orderBy('timestamp', descending: true)
+              .get();
+
+      final logs =
+          logsSnapshot.docs
+              .map((doc) => RecommendationLogFirestore.fromFirestore(doc))
+              .toList();
+
+      allLogs.addAll(logs);
+    }
+
+    return allLogs;
+  }
+
+  // Hàm lấy thống kê tổng hợp - đơn giản
+  Future<Map<String, dynamic>> getRecommendationLogFirestoreStats({
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
+    final DateTime start =
+        startDate ?? DateTime.now().subtract(const Duration(days: 7));
+    final DateTime end = endDate ?? DateTime.now();
+
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('recommendation_logs')
+            .where(
+              'timestamp',
+              isGreaterThanOrEqualTo: Timestamp.fromDate(start),
+            )
+            .where('timestamp', isLessThanOrEqualTo: Timestamp.fromDate(end))
+            .orderBy('timestamp', descending: true)
+            .get();
+
+    final logs =
+        snapshot.docs.map((doc) {
+          final data = doc.data();
+          return RecommendationLogFirestore.fromJson(data);
+        }).toList();
+
+    return _calculateStats(logs);
+  }
+
+  // Hàm tính toán thống kê từ logs - đơn giản
+  Map<String, dynamic> _calculateStats(List<RecommendationLogFirestore> logs) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+
+    final totalRequests = logs.length;
+
+    final todayRequests =
+        logs.where((log) {
+          final logDate = log.timestamp.toDate();
+          return logDate.isAfter(today) && logDate.isBefore(tomorrow);
+        }).length;
+
+    double avgPlaylistsPerRequest = 0.0;
+    if (logs.isNotEmpty) {
+      final totalPlaylists = logs.fold<int>(
+        0,
+        (sum, log) => sum + log.playlists.length,
+      );
+      avgPlaylistsPerRequest = totalPlaylists / logs.length;
+    }
+
+    final dailyRequests = _calculateDailyRequests(logs);
+    final moodDistribution = _calculateMoodDistribution(logs);
+    final recentLogs = logs.take(10).toList();
+
+    return {
+      'totalRequests': totalRequests,
+      'todayRequests': todayRequests,
+      'avgPlaylistsPerRequest': avgPlaylistsPerRequest,
+      'dailyRequests': dailyRequests,
+      'moodDistribution': moodDistribution,
+      'recentLogs': recentLogs,
+    };
+  }
+
+  Map<String, int> _calculateDailyRequests(
+    List<RecommendationLogFirestore> logs,
+  ) {
+    final Map<String, int> dailyRequests = {};
+    for (final log in logs) {
+      final logDate = log.timestamp.toDate();
+      final dateKey = _formatDateKey(logDate);
+      dailyRequests[dateKey] = (dailyRequests[dateKey] ?? 0) + 1;
+    }
+    return dailyRequests;
+  }
+
+  String _formatDateKey(DateTime date) {
+    return '${date.month}/${date.day}';
+  }
+
+  Map<String, int> _calculateMoodDistribution(
+    List<RecommendationLogFirestore> logs,
+  ) {
+    final Map<String, int> moodCounts = {};
+    for (final log in logs) {
+      final mood = log.moodLabel.isEmpty ? 'Unknown' : log.moodLabel;
+      moodCounts[mood] = (moodCounts[mood] ?? 0) + 1;
+    }
+    return moodCounts;
   }
 }

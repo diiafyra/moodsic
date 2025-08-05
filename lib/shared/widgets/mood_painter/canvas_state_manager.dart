@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:moodsic/core/config/dependencies.dart';
 import 'package:moodsic/core/services/api_service.dart';
 import 'package:moodsic/data/models/playlist_model.dart';
 import 'package:moodsic/shared/widgets/mood_painter/circumplex_result.dart';
@@ -119,7 +120,9 @@ class CanvasStateManager {
       debugPrint('👤 UID: $uid');
 
       // Call API
-      final playlists = await ApiService.recommendPlaylists(
+      final apiService = getIt<ApiService>();
+
+      final playlists = await apiService.recommendPlaylists(
         canvasImage: file,
         moodText: moodText,
         valence: valence,

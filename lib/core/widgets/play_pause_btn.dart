@@ -1,41 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import '../../features/playlist_suggestion/controller/play_controller.dart';
 
-class PlayPauseButton extends StatefulWidget {
-  final bool isPlaying;
-  final int size;
+class PlayPauseButton extends StatelessWidget {
   final String id;
+  final int size;
 
   const PlayPauseButton({
     super.key,
     required this.id,
     required this.size,
-    required this.isPlaying,
   });
 
   @override
-  State<PlayPauseButton> createState() => _PlayPauseButtonState();
-}
-
-class _PlayPauseButtonState extends State<PlayPauseButton> {
-  bool isPlaying = false;
-
-  @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<PlayController>(context);
+
+    final isPlaying = controller.isPlaying(id);
+
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          isPlaying = !isPlaying;
-        });
-      },
+      onTap: () => controller.togglePlay(id),
       child: Container(
-        width: widget.size.toDouble() + 4,
-        height: widget.size.toDouble() + 4,
+        width: size.toDouble() + 4,
+        height: size.toDouble() + 4,
         child: Center(
           child: SvgPicture.asset(
             isPlaying ? 'assets/icons/pause.svg' : 'assets/icons/play.svg',
-            width: widget.size.toDouble(),
-            height: widget.size.toDouble(),
+            width: size.toDouble(),
+            height: size.toDouble(),
           ),
         ),
       ),

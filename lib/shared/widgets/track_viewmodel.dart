@@ -43,6 +43,29 @@ class TrackViewmodel {
       durationMs: json['duration_ms'] ?? 0,
     );
   }
+  factory TrackViewmodel.fromJsonApi(Map<String, dynamic> json) {
+    // Lấy dữ liệu album
+    final albumData = json['album'] as Map<String, dynamic>? ?? {};
+    final albumName = albumData['name'] ?? 'Unknown Album';
+    final imageUrl = albumData['image_url'] ?? '';
+
+    // Lấy danh sách nghệ sĩ
+    final artists = json['artists'] as List<dynamic>? ?? [];
+    final artistNames =
+        artists
+            .map((artist) => artist['name'] ?? 'Unknown Artist')
+            .whereType<String>()
+            .toList();
+
+    return TrackViewmodel(
+      id: json['id'] ?? '',
+      name: json['name'] ?? 'Unknown Title',
+      artist: artistNames.join(', '), // Nối tên nghệ sĩ thành chuỗi
+      album: albumName,
+      imageUrl: imageUrl,
+      durationMs: json['duration_ms'] ?? 0,
+    );
+  }
 
   @override
   String toString() {

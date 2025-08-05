@@ -72,7 +72,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
       body: Stack(
         children: [
           _buildScrollView(),
-          _buildStickyButtons(),
+          // _buildStickyButtons(),
           _buildBackButton(), // Thêm back button
         ],
       ),

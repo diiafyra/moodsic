@@ -9,7 +9,6 @@ import 'package:moodsic/data/repositories/user_repository.dart';
 import 'package:moodsic/domains/usecases/fetch_recent_users.dart';
 import 'package:moodsic/domains/usecases/fetch_total_requests.dart';
 import 'package:moodsic/domains/usecases/fetch_total_user.dart';
-import 'package:get_it/get_it.dart';
 import 'package:moodsic/features/survey/widgets/artist_selection_widget.dart'; // Thêm để sử dụng GetIt
 
 class AdminHomeViewModel {

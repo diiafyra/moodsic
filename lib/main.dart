@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:moodsic/core/config/dependencies.dart';
 import 'package:moodsic/core/services/notification_service.dart';
+import 'package:moodsic/features/playlist_suggestion/controller/play_controller.dart';
 import 'package:moodsic/routes/app_routes.dart';
 import 'package:moodsic/shared/states/survey_provider.dart';
 import 'package:provider/provider.dart';
@@ -80,6 +81,8 @@ class MyApp extends StatelessWidget {
 
         return MultiProvider(
           providers: [
+            ChangeNotifierProvider(create: (_) => PlayController()),
+
             ChangeNotifierProvider.value(value: CAuthProvider.instance),
             ChangeNotifierProvider(create: (_) => SurveyProvider()),
           ],
