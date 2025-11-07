@@ -1,15 +1,6 @@
-# MyFlutterApp
-
-## Tổng quan cấu trúc thư mục
-
-lib/
-├── core/ # Các phần “xương sống” chung của app
-├── data/ # Định nghĩa model và repository – nơi fetch/save data
-├── domain/ # Business logic (use cases & entities)
-├── features/ # Mỗi feature riêng biệt: view, viewmodel, widget
-├── shared/ # Widget hoặc state dùng chung giữa các feature
-└── routes/ # Định nghĩa router/navigation
-
+# Moodsic
+## Design
+Figma: [Moodsic](https://www.figma.com/design/DU2wVctCCRMZnTNLuEpZ3G/moodsic?node-id=0-1&p=f)
 ### 1. `core/` – “Xương sống” của dự án
 - **Mục đích**: Chứa cấu hình chung, service để gọi API, helper, và widget cực kỳ generic.
 - **Ví dụ sản phẩm**:
