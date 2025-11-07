@@ -1,6 +1,10 @@
 # Moodsic
+
 ## Design
 Figma: [Moodsic](https://www.figma.com/design/DU2wVctCCRMZnTNLuEpZ3G/moodsic?node-id=0-1&p=f)
+
+## Cấu trúc dự án
+(fill code theo cấu trúc này)
 ### 1. `core/` – “Xương sống” của dự án
 - **Mục đích**: Chứa cấu hình chung, service để gọi API, helper, và widget cực kỳ generic.
 - **Ví dụ sản phẩm**:
